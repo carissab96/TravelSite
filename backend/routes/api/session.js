@@ -27,7 +27,7 @@ router.post(
   async (req, res, next) => {
     const { credential, password } = req.body;
 
-    const user = await User.unscoped().findOne({
+    const user = await User.scope('loginUser').findOne({
       where: {
         [Op.or]: {
           username: credential,
@@ -46,6 +46,8 @@ router.post(
 
     const safeUser = {
       id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       username: user.username,
     };
@@ -58,16 +60,16 @@ router.post(
   }
 );
 
-  // Log out
+// Log out
 router.delete(
-    '/',
-    (_req, res) => {
-      res.clearCookie('token');
-      return res.json({ message: 'success' });
-    }
-  );
-  
-  // Restore session user
+  '/',
+  (_req, res) => {
+    res.clearCookie('token');
+    return res.json({ message: 'success' });
+  }
+);
+
+// Restore session user
 router.get(
   '/',
   (req, res) => {
