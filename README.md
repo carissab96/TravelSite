@@ -2,7 +2,7 @@
 
 ## Database Schema Design
 
-`/TravelSite/images/image.png`
+(https://dbdocs.io/bayscarissa706/TravelCove)
 
 ## API Documentation
 
