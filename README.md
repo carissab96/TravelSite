@@ -2,7 +2,7 @@
 
 ## Database Schema Design
 
-`/home/carissab/Documents/mod4/TravelCove/images/image.png`
+`/TravelSite/images/image.png`
 
 ## API Documentation
 
