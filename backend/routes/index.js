@@ -2,10 +2,18 @@
 const express = require('express');
 const router = express.Router();
 
-//router.get('/hello/world', function(req, res) {
-//res.cookie('XSRF-TOKEN', req.csrfToken());
- //res.send('Hello World!');
-//});
+// Add a root route
+router.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to TravelSite API! Server is running.',
+    endpoints: {
+      csrf: '/api/csrf/restore',
+      login: '/api/session',
+      signup: '/api/users',
+      spots: '/api/spots'
+    } // Add more endpoints here
+  });
+});
 
 // Add a XSRF-TOKEN cookie
 router.get("/api/csrf/restore", (req, res) => {
@@ -18,5 +26,10 @@ router.get("/api/csrf/restore", (req, res) => {
 
 const apiRouter = require('./api');
 router.use('/api', apiRouter);
+
+router.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 module.exports = router;
