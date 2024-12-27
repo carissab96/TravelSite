@@ -17,7 +17,10 @@ router.use('/users', usersRouter);
 router.use('/spots', spotsRouter);
 
 router.post('/test', (req, res) => {
-  res.json({ requestBody: req.body });
+  try {
+    res.json({ requestBody: req.body });
+  } catch (err) {
+    res.status(500).json({ error: 'Error processing request body' });
+  }
 });
-
 module.exports = router;
