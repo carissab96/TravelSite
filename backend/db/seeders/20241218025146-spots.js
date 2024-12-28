@@ -4,7 +4,7 @@
 const { Spot } = require('../models');
 
 // Assume we have a separate seeder for users, and we want to use the first user's ID
-const ownerId = 1; // TODO: Replace with a dynamic value from the users seeder
+const ownerId = req.body.userId; // TODO: Replace with a dynamic value from the users seeder
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {

@@ -13,18 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'ownerId',
         onDelete: 'CASCADE',
       });
-      // Spot.hasMany(models.Booking, {
-      //   foreignKey: 'spotId',
-      //   onDelete: 'CASCADE',
-      // });
-      // Spot.hasMany(models.Review, {
-      //   foreignKey: 'spotId',
-      //   onDelete: 'CASCADE',
-      // });
-      // Spot.hasMany(models.SpotImage, {
-      //   foreignKey: 'spotId',
-      //   onDelete: 'CASCADE',
-      // });
+
     }
   }
 
@@ -33,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        model: 'User',
         key: 'id',
       },
       onDelete: 'CASCADE',

@@ -13,7 +13,7 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'users', // Assuming you have a users table
+            model: 'Users', // Assuming you have a users table
             key: 'id',
           },
           onDelete: 'CASCADE', // If a user is deleted, their spots will also be deleted
