@@ -19,8 +19,7 @@ router.post('/', [
   check('description').notEmpty().withMessage('Description is required'),
   check('price').isFloat({ gt: 0 }).withMessage('Price per day must be a positive number')
 ], async (req, res) => {
-  console.log('Received request to create a spot:', req.body);
-  console.log('User that is creating the spot:', req.user);
+
 
   if (!req.user) {
     console.log('User not authenticated');
@@ -37,21 +36,8 @@ router.post('/', [
   }
 
   const { address, city, state, country, lat, lng, name, description, price } = req.body;
-  console.log('Spot Model:', Spot);
+  
   try {
-    console.log('Creating a new spot with the following details:', {
-      ownerId: req.user.id,
-      address,
-      city,
-      state,
-      country,
-      lat,
-      lng,
-      name,
-      description,
-      price
-    });
-
     const newSpot = await Spot.create({
       ownerId: req.user.id,
       address,
@@ -67,8 +53,6 @@ router.post('/', [
       updatedAt: new Date(),
     });
 
-    console.log('New spot created successfully:', newSpot);
-
     return res.status(201).json({
       message: 'Spot created successfully',
       spot: newSpot,
@@ -76,6 +60,39 @@ router.post('/', [
   } catch (error) {
     console.error('Error creating spot:', error); // Log the error
     return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Get all spots
+router.get('/', async (req, res) => {
+  try {
+      const spots = await Spot.findAll({
+          attributes: [
+              'id', // Assuming 'id' is the spotId
+              'ownerId',
+              'address',
+              'city',
+              'state',
+              'country',
+              'lat',
+              'lng',
+              'name',
+              'description',
+              'price',
+              'createdAt',
+              'updatedAt',
+              // Add any other attributes you want to include
+              // 'previewImage', // Ensure this is defined in your Spot model
+              // avgRating will need to be calculated later
+          ],
+      });
+
+      return res.status(200).json({
+          spots,
+      });
+  } catch (error) {
+      console.error('Error fetching spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
