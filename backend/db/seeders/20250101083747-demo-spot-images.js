@@ -11,28 +11,28 @@ module.exports = {
      
     await SpotImage.bulkCreate([
             {
-              spotId: 1, // Ensure this ID exists in your spots table
+              spotId: 3, // Ensure this ID exists in your spots table
               url: 'https://example.com/image1.jpg',
               preview: true,
               createdAt: new Date(),
               updatedAt: new Date(),
           },
           {
-              spotId: 1, // Ensure this ID exists in your spots table
+              spotId: 4, // Ensure this ID exists in your spots table
               url: 'https://example.com/image2.jpg',
               preview: false,
               createdAt: new Date(),
               updatedAt: new Date(),
           },
           {
-              spotId: 2, // Ensure this ID exists in your spots table
+              spotId: 3, // Ensure this ID exists in your spots table
               url: 'https://example.com/image3.jpg',
               preview: true,
               createdAt: new Date(),
               updatedAt: new Date(),
           },
           {
-              spotId: 2, // Ensure this ID exists in your spots table
+              spotId: 4, // Ensure this ID exists in your spots table
               url: 'https://example.com/image4.jpg',
               preview: false,
               createdAt: new Date(),
