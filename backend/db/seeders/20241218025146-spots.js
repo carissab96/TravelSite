@@ -4,7 +4,6 @@
 
 
 // Assume we have a separate seeder for users, and we want to use the first user's ID
-'use strict';
 
 const { User, Spot } = require('../models'); // Import the User model
 

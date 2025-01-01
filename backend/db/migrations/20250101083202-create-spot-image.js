@@ -17,7 +17,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: 'spots', // Ensure this matches the name of your spots table
+                    model: 'Spots', // Ensure this matches the name of your spots table
                     key: 'id',
                 },
             },
