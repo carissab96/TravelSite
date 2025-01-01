@@ -6,7 +6,7 @@ let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
-
+const { User } = require('../models'); // Import the User model
 module.exports = {
   async up (queryInterface, Sequelize) {
   //   options.tableName = 'Users';
