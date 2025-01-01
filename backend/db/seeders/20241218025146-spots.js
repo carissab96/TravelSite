@@ -20,7 +20,7 @@ module.exports = {
             return;
         }
 
-        await queryInterface.bulkInsert('Spots', [
+        await queryInterface.bulkInsert('spots', [
             {
                 address: '123 Main St',
                 city: 'Sample City',
@@ -54,6 +54,6 @@ module.exports = {
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete('Spots', null, {});
+        await queryInterface.bulkDelete('spots', null, {});
     }
 };
