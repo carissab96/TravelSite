@@ -45,7 +45,7 @@ module.exports = {
     console.log('user down'); //Marlon's work around until we can figure out order
     //ERROR DETAIL: constraint spots_ownerId_fkey on table schema.spots depends on table schema."Users"
     options.tableName = "Users";
-    await queryInterface.removeConstraint('schema.spots', 'spots_ownerId_fkey');
+    // await queryInterface.removeConstraint('schema.spots', 'spots_ownerId_fkey');
     return queryInterface.dropTable(options);
   }
 };
