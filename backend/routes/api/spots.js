@@ -1,7 +1,9 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 const { requireAuth } = require('../../utils/auth'); // Middleware for authentication
-const { Spot } = require('../../db/models/');
+const { Spot, SpotImage } = require('../../db/models/');
+const { User } = require('../../db/models/');
+
 const router = express.Router();
 
 router.use(requireAuth); // Ensure this is applied before the route
@@ -81,7 +83,6 @@ router.get('/', async (req, res) => {
               'price',
               'createdAt',
               'updatedAt',
-              // Add any other attributes you want to include
               // 'previewImage', // Ensure this is defined in your Spot model
               // avgRating will need to be calculated later
           ],
@@ -92,6 +93,246 @@ router.get('/', async (req, res) => {
       });
   } catch (error) {
       console.error('Error fetching spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+// Edit a Spot
+router.put('/:spotId', async (req, res) => {
+  const { spotId } = req.params;
+  const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+  try {
+      const spot = await Spot.findByPk(spotId);
+
+      if (!spot) {
+          return res.status(404).json({ message: 'Spot not found' });
+      }
+
+      // Update the spot with new values
+      const updatedSpot = await spot.update({
+          address,
+          city,
+          state,
+          country,
+          lat,
+          lng,
+          name,
+          description,
+          price,
+          updatedAt: new Date(),
+      });
+
+      return res.status(200).json({
+          message: 'Spot updated successfully',
+          spot: updatedSpot,
+      });
+  } catch (error) {
+      console.error('Error updating spot:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+// Delete a Spot
+router.delete('/:spotId', async (req, res) => {
+  const { spotId } = req.params;
+
+  try {
+      const spot = await Spot.findByPk(spotId);
+
+      if (!spot) {
+          return res.status(404).json({ message: 'Spot not found' });
+      }
+
+      await spot.destroy(); // Delete the spot
+
+      return res.status(200).json({
+          message: 'Spot deleted successfully',
+      });
+  } catch (error) {
+      console.error('Error deleting spot:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+//get spots of current user
+router.get('/:currentUserId/spots', async (req, res) => {
+  try {
+      const { currentUserId } = req.params;
+
+      // Validate currentUserId
+      if (!currentUserId) {
+          return res.status(400).json({ message: 'User ID is required' });
+      }
+
+      const spots = await Spot.findAll({
+          where: {
+              ownerId: currentUserId,
+          },
+      });
+      // Check if spots are found
+      if (spots.length === 0) {
+          return res.status(404).json({ message: 'No spots found for this user' });
+      }
+      return res.status(200).json({
+          message: 'Spots fetched successfully',
+          spots,
+      });
+  } catch (error) {
+      console.error('Error fetching user spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }   
+})
+
+// Get details of a spot by ID
+router.get('/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      // Validate the ID format (e.g., ensure it's a number)
+      if (isNaN(id) || id <= 0) {
+          return res.status(400).json({ message: 'Invalid user ID' });
+      }
+
+      const spot = await Spot.findOne({
+          where: { id },
+          include: [
+              
+              {
+                  model: SpotImage,
+                  attributes: ['id', 'url', 'preview']
+              },
+              
+              {
+                  model: User, // Assuming User is the model for the owner
+                  attributes: ['id', 'firstName', 'lastName']
+              }
+          ],
+          attributes: {
+              include: [
+                  // Commenting out review aggregation for now
+                  /*
+                  [sequelize.fn('COUNT', sequelize.col('Reviews.id')), 'numReviews'],
+                  [sequelize.fn('AVG', sequelize.col('Reviews.starRating')), 'avgStarRating']
+                  */
+              ]
+          },
+          group: ['Spot.id', 'ownerId']
+      });
+
+      // Check if the spot exists
+      if (!spot) {
+          return res.status(404).json({ message: "Spot couldn't be found" });
+      }
+
+      return res.status(200).json(spot);
+  } catch (error) {
+      console.error('Error fetching spot details:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+// Add an image to a spot by ID
+router.post('/:id/images', async (req, res) => {
+    const { id } = req.params;
+    const { url, preview } = req.body;
+
+    // Validate input
+    if (!url || typeof preview !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid input' });
+    }
+
+    try {
+        // Find the spot by ID
+        const spot = await Spot.findByPk(id);
+
+        // Check if the spot exists
+        if (!spot) {
+            return res.status(404).json({ message: "Spot couldn't be found" });
+        }
+
+        // Check if the current user is the owner of the spot
+        if (spot.ownerId !== req.user.id) {
+            return res.status(403).json({ message: 'Forbidden: You do not have permission to add an image to this spot' });
+        }
+
+        // Create the new image in the database
+        const newImage = await SpotImage.create({
+            spotId: spot.id,
+            url,
+            preview,
+        });
+
+        // Return the newly created image
+        return res.status(201).json({
+            id: newImage.id,
+            url: newImage.url,
+            preview: newImage.preview,
+        });
+    } catch (error) {
+        console.error('Error adding image to spot:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Edit an image for a spot by ID
+router.put('/:id/images/:imageId', async (req, res) => {
+  const { id, imageId } = req.params;
+  const { url, preview } = req.body;
+
+  try {
+      const spot = await Spot.findByPk(id);
+      if (!spot) {
+          return res.status(404).json({ message: "Spot couldn't be found" });
+      }
+
+      const image = await SpotImage.findByPk(imageId);
+      if (!image) {
+          return res.status(404).json({ message: "Image couldn't be found" });
+      }
+
+      // Check if the current user is the owner of the spot
+      if (spot.ownerId !== req.user.id) {
+          return res.status(403).json({ message: 'Forbidden: You do not have permission to edit this image' });
+      }
+
+      // Update the image
+      const updatedImage = await image.update({ url, preview });
+
+      return res.status(200).json({
+          id: updatedImage.id,
+          url: updatedImage.url,
+          preview: updatedImage.preview,
+      });
+  } catch (error) {
+      console.error('Error updating image:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Delete an image for a spot by ID
+router.delete('/:id/images/:imageId', async (req, res) => {
+  const { id, imageId } = req.params;
+
+  try {
+      const spot = await Spot.findByPk(id);
+      if (!spot) {
+          return res.status(404).json({ message: "Spot couldn't be found" });
+      }
+
+      const image = await SpotImage.findByPk(imageId);
+      if (!image) {
+          return res.status(404).json({ message: "Image couldn't be found" });
+      }
+
+      // Check if the current user is the owner of the spot
+      if (spot.ownerId !== req.user.id) {
+          return res.status(403).json({ message: 'Forbidden: You do not have permission to delete this image' });
+      }
+
+      await image.destroy(); // Delete the image
+
+      return res.status(200).json({ message: 'Image deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting image:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
