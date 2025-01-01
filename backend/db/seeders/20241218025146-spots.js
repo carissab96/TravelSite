@@ -50,7 +50,7 @@ module.exports = {
         //     },
         //     // Add more spots as needed
         // ]);
-        await Spot.bulkCreate([
+        await Spots.bulkCreate([
           {
                     address: '123 Main St',
                     city: 'Sample City',
