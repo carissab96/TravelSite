@@ -86,6 +86,7 @@ module.exports = {
     },
   
     down: async (queryInterface, Sequelize) => {
+      console.log('spot down');
       options.tableName = 'spots';
       await queryInterface.dropTable('spots');
     },
