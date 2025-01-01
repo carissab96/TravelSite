@@ -1,4 +1,5 @@
 const express = require('express');
+const { Op } = require('sequelize'); // Import Op for query operators
 const { check, validationResult } = require('express-validator');
 const { requireAuth } = require('../../utils/auth'); // Middleware for authentication
 const { Spot, SpotImage } = require('../../db/models/');
@@ -67,6 +68,19 @@ router.post('/', [
 
 // Get all spots
 router.get('/', async (req, res) => {
+  const { city, state, price } = req.query; 
+  const where = {}; 
+  // Add filters based on query parameters
+  if (city) {
+      where.city = city; // Filter by city
+  }
+  if (state) {
+      where.state = state; // Filter by state
+  }
+  if (price) {
+      where.price = { [Op.lte]: price }; // Filter by price (less than or equal)
+  }
+
   try {
       const spots = await Spot.findAll({
           attributes: [
@@ -83,9 +97,10 @@ router.get('/', async (req, res) => {
               'price',
               'createdAt',
               'updatedAt',
-              // 'previewImage', // Ensure this is defined in your Spot model
+               
               // avgRating will need to be calculated later
           ],
+          where, // Include the where clause for filtering
       });
 
       return res.status(200).json({
