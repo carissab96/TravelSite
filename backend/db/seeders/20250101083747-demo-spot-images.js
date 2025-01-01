@@ -1,40 +1,47 @@
 'use strict';
 
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+    options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkInsert('SpotImages', [
+        await queryInterface.bulkCreate('SpotImages', [
             {
-                spotId: 8, // Ensure this ID exists in your spots table
+                spotId: 1, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image1.jpg',
                 preview: true,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
             {
-                spotId: 8,
+                spotId: 1, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image2.jpg',
                 preview: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
             {
-                spotId: 6, // Ensure this ID exists in your spots table
+                spotId: 2, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image3.jpg',
                 preview: true,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
             {
-                spotId: 7,
+                spotId: 2, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image4.jpg',
                 preview: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
-        ], {});
+        ], options);
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete('SpotImages', null, {});
-    }
+        console.log('SpotImages down');
+        options.tableName = 'SpotImages';
+        await queryInterface.bulkDelete('SpotImages', null, options);
+    },
 };
