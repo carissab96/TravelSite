@@ -17,10 +17,10 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'Users', // Assuming you have a users table
+            model: 'Users',
             key: 'id',
           },
-          onDelete: 'CASCADE', // If a user is deleted, their spots will also be deleted
+          onDelete: 'CASCADE', 
         },
         address: {
           type: Sequelize.STRING,
