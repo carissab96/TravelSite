@@ -2,10 +2,12 @@
 
 /** @type {import('sequelize-cli').Migration} */
 
+const { User, Spot } = require('../models'); // Import the User and Spot models
 
-// Assume we have a separate seeder for users, and we want to use the first user's ID
-
-const { User, Spot } = require('../models'); // Import the User model
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+    options.schema = process.env.SCHEMA;  // define your schema in options object
+}
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
@@ -19,70 +21,44 @@ module.exports = {
             return;
         }
 
-        // await queryInterface.bulkInsert('spots', [
-        //     {
-        //         address: '123 Main St',
-        //         city: 'Sample City',
-        //         state: 'CA',
-        //         country: 'USA',
-        //         lat: 34.0522,
-        //         lng: -118.2437,
-        //         name: 'Test Spot 1',
-        //         description: 'This is a test spot',
-        //         price: 99.99,
-        //         ownerId: ownerId, // Use the dynamic user ID
-        //         createdAt: new Date(),
-        //         updatedAt: new Date(),
-        //     },
-        //     {
-        //         address: '456 Elm St',
-        //         city: 'Sample City',
-        //         state: 'CA',
-        //         country: 'USA',
-        //         lat: 34.0522,
-        //         lng: -118.2437,
-        //         name: 'Test Spot 2',
-        //         description: 'This is another test spot',
-        //         price: 199.99,
-        //         ownerId: ownerId, // Use the dynamic user ID
-        //         createdAt: new Date(),
-        //         updatedAt: new Date(),
-        //     },
-        //     // Add more spots as needed
-        // ]);
         await Spot.bulkCreate([
-          {
-                    address: '123 Main St',
-                    city: 'Sample City',
-                    state: 'CA',
-                    country: 'USA',
-                    lat: 34.0522,
-                    lng: -118.2437,
-                    name: 'Test Spot 1',
-                    description: 'This is a test spot',
-                    price: 99.99,
-                    ownerId: ownerId, // Use the dynamic user ID
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-                {
-                    address: '456 Elm St',
-                    city: 'Sample City',
-                    state: 'CA',
-                    country: 'USA',
-                    lat: 34.0522,
-                    lng: -118.2437,
-                    name: 'Test Spot 2',
-                    description: 'This is another test spot',
-                    price: 199.99,
-                    ownerId: ownerId, // Use the dynamic user ID
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
+            {
+                address: '123 Main St',
+                city: 'Sample City',
+                state: 'CA',
+                country: 'USA',
+                lat: 34.0522,
+                lng: -118.2437,
+                name: 'Test Spot 1',
+                description: 'This is a test spot',
+                price: 99.99,
+                ownerId: ownerId, // Use the dynamic user ID
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
+            {
+                address: '456 Elm St',
+                city: 'Sample City',
+                state: 'CA',
+                country: 'USA',
+                lat: 34.0522,
+                lng: -118.2437,
+                name: 'Test Spot 2',
+                description: 'This is another test spot',
+                price: 199.99,
+                ownerId: ownerId, // Use the dynamic user ID
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
         ], { validate: true });
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete('Spots', null, {});
-    }
+        console.log('Spots down');
+        options.tableName = 'Spots';
+        const Op = Sequelize.Op;
+        return queryInterface.bulkDelete(options.tableName, {
+            ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
+        }, {});
+    },
 };
