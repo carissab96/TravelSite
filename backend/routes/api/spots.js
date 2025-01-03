@@ -82,7 +82,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
-      const spots = await Spot.findAll({
+      const Spots = await Spot.findAll({
           attributes: [
               'id', // Assuming 'id' is the spotId
               'ownerId',
@@ -177,7 +177,7 @@ router.get('/:currentUserId/spots', async (req, res) => {
           return res.status(400).json({ message: 'User ID is required' });
       }
 
-      const spots = await Spot.findAll({
+      const Spots = await Spot.findAll({
           where: {
               ownerId: currentUserId,
           },

@@ -57,7 +57,7 @@ module.exports = {
         console.log('Spots down');
         options.tableName = 'Spots';
         const Op = Sequelize.Op;
-        return queryInterface.bulkDelete(options.tableName, {
+        return queryInterface.bulkDelete("schema.Spots", {
             ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
         }, {});
     },
