@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up (queryInterface, Sequelize) {
         console.log('Spots up');
-        options.tableName = 'Spots';
+ 
         // Fetch the first user ID dynamically
         const users = await User.findAll();
         const ownerId = users.length > 0 ? users[0].id : null; // Get the first user's ID
@@ -57,6 +57,7 @@ module.exports = {
 
  async down (queryInterface, Sequelize) {
         console.log('Spots down');
+        options.tableName = 'Spots';
         const Op = Sequelize.Op;
         return queryInterface.bulkDelete(options.tableName, {
             ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
