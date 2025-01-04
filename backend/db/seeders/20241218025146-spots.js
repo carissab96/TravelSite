@@ -51,6 +51,7 @@ module.exports = {
         ], { validate: true });
     },
 
+
  async down (queryInterface, Sequelize) {
         console.log('Spots down');
         options.tableName = 'Spots';

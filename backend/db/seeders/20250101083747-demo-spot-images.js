@@ -4,7 +4,7 @@ let options = {};
 if (process.env.NODE_ENV === 'production') {
     options.schema = process.env.SCHEMA;  // define your schema in options object
 }
-const { SpotImage } = require('../models'); // Import the SpotImage model
+const { Spot, SpotImage } = require('../models'); // Import the SpotImage model
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
