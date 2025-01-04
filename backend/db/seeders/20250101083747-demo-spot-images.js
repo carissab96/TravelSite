@@ -11,7 +11,7 @@ module.exports = {
     
         await SpotImage.bulkCreate([
             {
-                spotId: 7, // Ensure this ID exists in your spots table
+                spotId: 8, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image1.jpg',
                 preview: true,
                 createdAt: new Date(),
@@ -46,7 +46,7 @@ module.exports = {
         options.tableName = 'SpotImages';
         const Op = Sequelize.Op;
         return queryInterface.bulkDelete(options.tableName, {
-            spotId: { [Op.in]: [7,8] } // Adjust this to match the IDs you want to delete
+            spotId: { [Op.in]: [8] } // Adjust this to match the IDs you want to delete
         }, {});
     },
 };
