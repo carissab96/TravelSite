@@ -7,7 +7,8 @@ if (process.env.NODE_ENV === 'production') {
 const { Spot, SpotImage } = require('../models'); // Import the SpotImage model
 
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+    async up (queryInterface, Sequelize) {
+      await queryInterface.sequelize.query('PRAGMA foreign_keys = OFF;');
         await SpotImage.bulkCreate([
             {
                 spotId: 6, // Ensure this ID exists in your spots table
@@ -37,10 +38,11 @@ module.exports = {
             //     createdAt: new Date(),
             //     updatedAt: new Date(),
             // },
-        ], options);
-    },
-    
-    down: async (queryInterface, Sequelize) => {
+          ], options);
+
+            await queryInterface.sequelize.query('PRAGMA foreign_keys = ON;');
+          },
+    async down (queryInterface, Sequelize) {
         console.log('SpotImages down');
         options.tableName = 'SpotImages';
         const Op = Sequelize.Op;
