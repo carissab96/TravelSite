@@ -8,7 +8,7 @@ const { Spot, SpotImage } = require('../models'); // Import the SpotImage model
 
 module.exports = {
     async up (queryInterface, Sequelize) {
-      await queryInterface.sequelize.query('PRAGMA foreign_keys = OFF;');
+    
         await SpotImage.bulkCreate([
             {
                 spotId: 6, // Ensure this ID exists in your spots table
@@ -38,10 +38,9 @@ module.exports = {
             //     createdAt: new Date(),
             //     updatedAt: new Date(),
             // },
-          ], options);
-
-            await queryInterface.sequelize.query('PRAGMA foreign_keys = ON;');
-          },
+          ], options, 
+          { validate: true });
+    },
     async down (queryInterface, Sequelize) {
         console.log('SpotImages down');
         options.tableName = 'SpotImages';
