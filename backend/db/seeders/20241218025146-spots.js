@@ -56,7 +56,7 @@ module.exports = {
         options.tableName = 'Spots';
         const Op = Sequelize.Op;
         return queryInterface.bulkDelete(options.tableName, {
-            ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
+            ownerId: { [Op.in]: [7, 8, 9] } // Adjust this to match the IDs you want to delete
         }, {});
     }
 };
