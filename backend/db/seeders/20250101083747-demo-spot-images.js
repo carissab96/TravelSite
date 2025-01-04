@@ -10,7 +10,7 @@ module.exports = {
     up: async (queryInterface, Sequelize) => {
         await SpotImage.bulkCreate([
             {
-                spotId: 6, // Ensure this ID exists in your spots table
+                spotId: 5, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image1.jpg',
                 preview: true,
                 createdAt: new Date(),
@@ -19,7 +19,7 @@ module.exports = {
             {
                 spotId: 6, // Ensure this ID exists in your spots table
                 url: 'https://example.com/image2.jpg',
-                preview: false,
+                preview: true,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
