@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+    async up (queryInterface, Sequelize) {
         await queryInterface.createTable('SpotImages', {
             id: {
                 allowNull: false,
@@ -17,7 +17,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: 'Spots', // Ensure this matches the name of your spots table
+                    model: 'Spots', 
                     key: 'id',
                 },
             },
@@ -32,15 +32,17 @@ module.exports = {
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,
+                defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
             },
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE,
+                defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
             },
         }, options);
     },
 
-    down: async (queryInterface, Sequelize) => {
+    async down (queryInterface, Sequelize){
       console.log('SpotImages down');
         options.tableName = 'SpotImages';
         await queryInterface.dropTable('SpotImages');

@@ -51,17 +51,12 @@ module.exports = {
         ], { validate: true });
     },
 
-//  async down (queryInterface, Sequelize) {
-//         console.log('Spots down');
-//         options.tableName = 'Spots';
-//         const Op = Sequelize.Op;
-//         return queryInterface.bulkDelete(options.tableName, {
-//             ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
-//         }, {});
-
-async down (queryInterface, Sequelize) {
-  await queryInterface.bulkDelete('Spot', null, {});
-
-},
-
+ async down (queryInterface, Sequelize) {
+        console.log('Spots down');
+        options.tableName = 'Spots';
+        const Op = Sequelize.Op;
+        return queryInterface.bulkDelete(options.tableName, {
+            ownerId: { [Op.in]: [1, 2] } // Adjust this to match the IDs you want to delete
+        }, {});
+    }
 };
