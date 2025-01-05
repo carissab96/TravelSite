@@ -12,7 +12,7 @@ module.exports = {
     await queryInterface.addColumn(options, 'firstName', {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: 'User'  // Default value for existing records
+      defaultValue: "User"  // Default value for existing records
     });
     await queryInterface.addColumn(options, 'lastName', {
       type: Sequelize.STRING,
