@@ -4,49 +4,54 @@ let options = {};
 if (process.env.NODE_ENV === 'production') {
     options.schema = process.env.SCHEMA;  // define your schema in options object
 }
-const { Spot, SpotImage } = require('../models'); // Import the SpotImage model
+const { SpotImage, Spot } = require('../models'); // Import the SpotImage model
 
 module.exports = {
     async up (queryInterface, Sequelize) {
-    
+        console.log("Starting to seed SpotImages...");
+
+
+        // Fetch existing spot IDs
+        const existingSpots = await Spot.findAll({
+            attributes: ['id'] // Fetch only the 'id' field
+        });
+
+        // Extract spot IDs into an array
+        const spotIds = existingSpots.map(spot => spot.id);
+        console.log("Existing Spot IDs:", spotIds);
+
+        // Ensure there are valid spot IDs before seeding
+        if (spotIds.length === 0) {
+            console.error("No valid Spot IDs found. Cannot seed SpotImages.");
+            return;
+        }
+
+        // Create SpotImages using the fetched spot IDs
         await SpotImage.bulkCreate([
-            {
-                spotId: 7, // Ensure this ID exists in your spots table
-                url: 'https://example.com/image1.jpg',
-                preview: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-            {
-                spotId: 8, // Ensure this ID exists in your spots table
-                url: 'https://example.com/image2.jpg',
-                preview: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-            // {
-            //     spotId: 1, // Ensure this ID exists in your spots table
-            //     url: 'https://example.com/image3.jpg',
-            //     preview: true,
-            //     createdAt: new Date(),
-            //     updatedAt: new Date(),
-            // },
-            // {
-            //     spotId: 2, // Ensure this ID exists in your spots table
-            //     url: 'https://example.com/image4.jpg',
-            //     preview: false,
-            //     createdAt: new Date(),
-            //     updatedAt: new Date(),
-            // },
-          ], options, 
-          { validate: true });
-    },
+          {
+              spotId: spotIds[0], // Use the first existing spotId
+              url: 'https://example.com/image1.jpg',
+              preview: true,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+          },
+          {
+              spotId: spotIds[1], // Use the second existing spotId
+              url: 'https://example.com/image2.jpg',
+              preview: true,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+          },
+          // Add more records as needed, ensuring they reference valid spotIds
+      ], { validate: true });
+
+      console.log("SpotImages seeded successfully.");
+  },
     async down (queryInterface, Sequelize) {
         console.log('SpotImages down');
         options.tableName = 'SpotImages';
         const Op = Sequelize.Op;
-        return 
-        queryInterface.bulkDelete(options.tableName, {
+        return queryInterface.bulkDelete(options.tableName, {
             spotId: { [Op.in]: [8] } // Adjust this to match the IDs you want to delete
         }, {});
     },
