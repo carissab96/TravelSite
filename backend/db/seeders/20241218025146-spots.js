@@ -1,15 +1,18 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-const { Spot } = require('../models');
 
-// Assume we have a separate seeder for users, and we want to use the first user's ID
-'use strict';
+const { User, Spot } = require('../models'); // Import the User and Spot models
 
-const { User } = require('../models'); // Import the User model
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+    options.schema = process.env.SCHEMA;  // define your schema in options object
+}
 
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+  async up (queryInterface, Sequelize) {
+        console.log('Spots up');
+ 
         // Fetch the first user ID dynamically
         const users = await User.findAll();
         const ownerId = users.length > 0 ? users[0].id : null; // Get the first user's ID
@@ -20,7 +23,7 @@ module.exports = {
             return;
         }
 
-        await queryInterface.bulkInsert('Spots', [
+        await Spot.bulkCreate([
             {
                 address: '123 Main St',
                 city: 'Sample City',
@@ -32,8 +35,6 @@ module.exports = {
                 description: 'This is a test spot',
                 price: 99.99,
                 ownerId: ownerId, // Use the dynamic user ID
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 address: '456 Elm St',
@@ -46,14 +47,17 @@ module.exports = {
                 description: 'This is another test spot',
                 price: 199.99,
                 ownerId: ownerId, // Use the dynamic user ID
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
-            // Add more spots as needed
-        ]);
+        ], { validate: true });
     },
 
-    down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete('Spots', null, {});
+
+ async down (queryInterface, Sequelize) {
+        console.log('Spots down');
+        options.tableName = 'Spots';
+        const Op = Sequelize.Op;
+        return queryInterface.bulkDelete(options.tableName, {
+            ownerId: { [Op.in]: [7, 8, 9] } // Adjust this to match the IDs you want to delete
+        }, {});
     }
 };

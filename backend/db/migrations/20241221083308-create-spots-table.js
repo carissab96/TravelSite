@@ -1,9 +1,13 @@
 'use strict';
 
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
-      await queryInterface.createTable('spots', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("Spots", {
         id: {
           type: Sequelize.INTEGER,
           autoIncrement: true,
@@ -13,10 +17,10 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'Users', // Assuming you have a users table
-            key: 'id',
+            model: "Users",
+            key: "id",
           },
-          onDelete: 'CASCADE', // If a user is deleted, their spots will also be deleted
+          onDelete: 'CASCADE', 
         },
         address: {
           type: Sequelize.STRING,
@@ -78,10 +82,12 @@ module.exports = {
           allowNull: false,
           defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         },
-      });
+      }, options);
     },
   
-    down: async (queryInterface, Sequelize) => {
-      await queryInterface.dropTable('spots');
+   async down (queryInterface, Sequelize){
+      console.log('spot down');
+      options.tableName = "Spots";
+      await queryInterface.dropTable(options.tableName);
     },
   };

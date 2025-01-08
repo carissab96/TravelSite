@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable("Users", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -42,7 +42,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    console.log('user down'); //Marlon's work around until we can figure out order
+    //ERROR DETAIL: constraint spots_ownerId_fkey on table schema.spots depends on table schema."Users"
     options.tableName = "Users";
+    // await queryInterface.removeConstraint('schema.spots', 'spots_ownerId_fkey');
     return queryInterface.dropTable(options);
   }
 };
