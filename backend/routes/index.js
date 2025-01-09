@@ -2,6 +2,12 @@
 const express = require('express');
 const router = express.Router();
 
+// Middleware for logging incoming requests
+router.use((req, res, next) => {
+    console.log(`[index.js]${req.method} ${req.url}`);
+    next();
+});
+
 // Add a root route
 router.get('/', (req, res) => {
   res.json({
@@ -10,7 +16,8 @@ router.get('/', (req, res) => {
       csrf: '/api/csrf/restore',
       login: '/api/session',
       signup: '/api/users',
-      spots: '/api/spots'
+      spots: '/api/spots',
+      reviews: '/api/reviews'
     } // Add more endpoints here
   });
 });

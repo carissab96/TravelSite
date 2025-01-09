@@ -29,7 +29,7 @@ module.exports = {
           key: 'id',
         },
       },
-      rating: {
+      stars: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },

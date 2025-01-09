@@ -36,7 +36,7 @@ module.exports = {
       {
         spotId: spotIds[0], // Use the first existing spotId
         userId: ownerId, // Use the dynamic user ID
-        rating: 5,
+        stars: 5,
         comment: 'Amazing place!',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -44,7 +44,7 @@ module.exports = {
       {
         spotId: spotIds[1], // Use the second existing spotId
         userId: ownerId, // Use the dynamic user ID
-        rating: 4,
+        stars: 4,
         comment: 'Great experience!',
         createdAt: new Date(),
         updatedAt: new Date(),
