@@ -1,5 +1,5 @@
 const express = require('express');
-require('express-async-errors');
+const expressAsyncErrors = require('express-async-errors');
 const morgan = require('morgan');
 const cors = require('cors');
 const csurf = require('csurf');
@@ -10,6 +10,9 @@ const { environment } = require('./config');
 const isProduction = environment === 'production';
 
 const app = express();
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+});
 
 app.use(morgan('dev'))
 

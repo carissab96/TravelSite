@@ -1,9 +1,17 @@
 // backend/routes/api/index.js
 const express = require('express');
 const router = require('express').Router();
+
+// Middleware for logging incoming requests
+router.use((req, res, next) => {
+  console.log(`[api/index.js]${req.method} ${req.url}`);
+  next();
+});
+
 const sessionRouter = require('./session');
 const usersRouter = require('./users');
 const spotsRouter = require('./spots');
+const reviewsRouter = require('./reviews');
 
 const { restoreUser } = require("../../utils/auth");
 
@@ -17,6 +25,8 @@ router.use('/session', sessionRouter);
 router.use('/users', usersRouter);
 
 router.use('/spots', spotsRouter);
+
+router.use('/reviews', reviewsRouter);
 
 // Test route
 router.get('/test', (req, res) => {
