@@ -159,7 +159,7 @@ user's information.
 * Require Authentication: false
 * Request
   * Method: POST
-  * Route path: /api/session
+  * Route path: /api/users
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -622,7 +622,7 @@ Returns all the reviews written by the current user.
 * Require Authentication: true
 * Request
   * Method: GET
-  * Route path: api/reviews/
+  * Route path: api/reviews/user/reviews
   * Body: none
 
 * Successful Response
@@ -678,7 +678,7 @@ Returns all the reviews that belong to a spot specified by id.
 * Require Authentication: false
 * Request
   * Method: GET
-  * Route path: /api/spots/:id/reviews
+  * Route path: /api/reviews/:spotId/reviews/
   * Body: none
 
 * Successful Response
@@ -733,7 +733,7 @@ Create and return a new review for a spot specified by id.
 * Require Authentication: true
 * Request
   * Method: POST
-  * Route path: api/spots/:spotId/reviews
+  * Route path: api/reviews/:spotId/reviews
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -868,7 +868,7 @@ Update and return an existing review.
 * Require proper authorization: Review must belong to the current user
 * Request
   * Method: PATCH
-  * Route path: /api/reviews/:reviewId
+  * Route path: /api/reviews/:spotId/:userId/reviews/:reviewId/
   * Headers:
     * Content-Type: application/json
   * Body:
