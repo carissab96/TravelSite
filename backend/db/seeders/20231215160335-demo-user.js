@@ -1,6 +1,7 @@
 'use strict';
 
 const bcrypt = require("bcryptjs");
+const { Sequelize } = require('sequelize'); // Add this import statement
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -10,7 +11,7 @@ const { User } = require('../models'); // Import the User model
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    console.log("Starting to seed users...");
+
     try {
       await User.bulkCreate([
         {
@@ -41,7 +42,6 @@ module.exports = {
           updatedAt: new Date()
         }
       ], { validate: true });
-      console.log("Users seeded successfully.");
     } catch (error) {
       console.error("Error seeding users:", error);
     }

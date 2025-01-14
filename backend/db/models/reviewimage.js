@@ -1,5 +1,5 @@
 'use strict';
-const { Model, Validator } = require('sequelize');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class ReviewImage extends Model {
@@ -12,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   ReviewImage.init({
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoincrement: true,      
-    },
+    // id: {
+    //   type: DataTypes.INTEGER,
+    //   primaryKey: true,
+    //   autoincrement: true,      
+    // },
     reviewId: {
       type: DataTypes.INTEGER,
       allowNull: false,

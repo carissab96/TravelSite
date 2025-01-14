@@ -2,16 +2,17 @@
 
 /** @type {import('sequelize-cli').Migration} */
 
-const { User, Spot } = require('../models'); // Import the User and Spot models
+const { Sequelize } = require('sequelize'); // Add this import statement
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
     options.schema = process.env.SCHEMA;  // define your schema in options object
 }
+const { User, Spot } = require('../models'); // Import the User and Spot models
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-        console.log('Spots up');
+     
  
         // Fetch the first user ID dynamically
         const users = await User.findAll();
@@ -22,7 +23,7 @@ module.exports = {
             console.error('No users found. Cannot seed spots.');
             return;
         }
-
+try {
         await Spot.bulkCreate([
             {
                 address: '123 Main St',
@@ -49,11 +50,13 @@ module.exports = {
                 ownerId: ownerId, // Use the dynamic user ID
             },
         ], { validate: true });
+    } catch (error) {
+        console.error("Error seeding spots:", error);
+      }
     },
 
-
  async down (queryInterface, Sequelize) {
-        console.log('Spots down');
+      
         options.tableName = 'Spots';
         const Op = Sequelize.Op;
         return queryInterface.bulkDelete(options.tableName, {

@@ -1,4 +1,5 @@
 'use strict';
+const { Sequelize } = require('sequelize'); // Add this import statement
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -8,7 +9,7 @@ const { SpotImage, Spot } = require('../models'); // Import the SpotImage model
 
 module.exports = {
     async up (queryInterface, Sequelize) {
-        console.log("Starting to seed SpotImages...");
+       
 
 
         // Fetch existing spot IDs
@@ -18,7 +19,7 @@ module.exports = {
 
         // Extract spot IDs into an array
         const spotIds = existingSpots.map(spot => spot.id);
-        console.log("Existing Spot IDs:", spotIds);
+        
 
         // Ensure there are valid spot IDs before seeding
         if (spotIds.length === 0) {
@@ -45,10 +46,10 @@ module.exports = {
           // Add more records as needed, ensuring they reference valid spotIds
       ], { validate: true });
 
-      console.log("SpotImages seeded successfully.");
+   
   },
     async down (queryInterface, Sequelize) {
-        console.log('SpotImages down');
+
         options.tableName = 'SpotImages';
         const Op = Sequelize.Op;
         return queryInterface.bulkDelete(options.tableName, {

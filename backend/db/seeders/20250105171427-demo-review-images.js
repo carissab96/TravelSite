@@ -1,4 +1,5 @@
 'use strict';
+const { Sequelize } = require('sequelize'); // Add this import statement
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -7,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 const { Review, ReviewImage } = require('../models'); // Import Review and ReviewImage models
 module.exports = {
     async up(queryInterface) {
-        console.log("Starting to seed ReviewImages...");
+    
 
         // Fetch existing review IDs
         const reviews = await Review.findAll({
@@ -15,11 +16,11 @@ module.exports = {
         });
 
         const reviewIds = reviews.map(review => review.id);
-        console.log("Existing Review IDs:", reviewIds);
+       
 
         // Ensure there are valid review IDs before seeding
-        if (reviewIds.length === 0) {
-            console.error("No valid Review IDs found. Cannot seed ReviewImages.");
+        if (reviewIds.length < 2) {
+            console.error("Not enough Review IDs found. At least 2 are required to seed ReviewImages.");
             return;
         }
 
@@ -40,15 +41,13 @@ module.exports = {
             // Add more records as needed, ensuring they reference valid reviewIds
         ], { validate: true });
 
-        console.log("ReviewImages seeded successfully.");
+      
     },
 
     async down(queryInterface) {
-        console.log('ReviewImages down');
+
         options.tableName = 'ReviewImages';
         const Op = Sequelize.Op;
-        return queryInterface.bulkDelete(options.tableName, {
-            reviewId: { [Op.in]: [1] } // Adjust this to match the IDs you want to delete
-        }, {});
-    },
+        queryInterface.bulkDelete(options.tableName, null, {}); 
+        },
 };

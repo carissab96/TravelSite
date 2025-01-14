@@ -43,7 +43,7 @@ module.exports = {
     },
 
     async down (queryInterface, Sequelize){
-      console.log('SpotImages down');
+     
         options.tableName = "SpotImages";
         await queryInterface.dropTable(options.tableName);
     },

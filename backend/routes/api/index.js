@@ -4,7 +4,7 @@ const router = require('express').Router();
 
 // Middleware for logging incoming requests
 router.use((req, res, next) => {
-  console.log(`[api/index.js]${req.method} ${req.url}`);
+
   next();
 });
 

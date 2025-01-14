@@ -3,7 +3,7 @@ const { Op } = require('sequelize'); // Import Op for query operators
 const { check, validationResult } = require('express-validator');
 const { requireAuth } = require('../../utils/auth'); // Middleware for authentication
 const { Review } = require('../../db/models/');
-const { Spot, SpotImage } = require('../../db/models/');
+const { Spot } = require('../../db/models/');
 const { User } = require('../../db/models/');
 const { ReviewImage } = require('../../db/models/');
 
@@ -11,7 +11,7 @@ const router = express.Router();
 
 // Middleware for logging incoming requests
 router.use((req, res, next) => {
-    console.log(`[reviews.js] ${req.method} ${req.url}`);
+ 
     next();
 });
 
@@ -24,13 +24,12 @@ router.get('/test', (req, res) => {
 
 // Create a review
 router.post('/:spotId/reviews', async (req, res) => {
-    console.log('Attempting to create a review.');
+   
     
     const userId = req.user ? req.user.id : null;
     const { spotId } = req.params;
     const { comment, stars } = req.body;
 
-    console.log({ userId, spotId, comment, stars });
 
     // Validate request body
     const errors = validationResult(req);
@@ -42,14 +41,14 @@ router.post('/:spotId/reviews', async (req, res) => {
     try {
         // Check if the spot exists
         const spot = await Spot.findByPk(spotId);
-        console.log('Spot:', spot);
+  
         if (!spot) {
             return res.status(404).json({ message: 'Spot not found' });
         }
 
         // Check if the user has already reviewed this spot
         const existingReview = await Review.findOne({ where: { spotId, userId: req.user.id } });
-        console.log('Existing review:', existingReview);
+     
         if (existingReview) {
             return res.status(403).json({ message: 'Review already exists for this spot from the current user' });
         }
@@ -86,7 +85,7 @@ router.post('/:spotId/reviews', async (req, res) => {
 router.get('/user/reviews', async (req, res) => {
     const userId = req.user.id; // Assuming req.user is set by your authentication middleware
 
-    console.log('User ID:', userId);
+  
     
     try {
         const reviews = await Review.findAll({
@@ -108,7 +107,7 @@ router.get('/user/reviews', async (req, res) => {
 router.get('/:spotId/reviews', async (req, res) => {
     const { spotId } = req.params;
 
-    console.log('Spot ID:', spotId);
+   
 
     try {
         const reviews = await Review.findAll({
@@ -135,13 +134,13 @@ router.put('/:spotId/:userId/reviews/:id', async (req, res) => {
     const userId = req.user.id;
     const { comment, stars } = req.body;
 
-    console.log(`Attempting to update review ${id} for spot ${spotId} which belongs to ${userId} with comment ${comment} and ${stars} stars`);
+   
 
     try {
         // Check if the review exists
         const review = await Review.findByPk(id);
         // Log the entire review object
-        console.log('Review object:', review);
+       
 
         if (!review) {
             return res.status(404).json({ message: 'Review not found' });

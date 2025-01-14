@@ -10,8 +10,7 @@ const { environment } = require('./config');
 const isProduction = environment === 'production';
 
 const app = express();
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+app.use((req, res, next) => 
 });
 
 app.use(morgan('dev'))
