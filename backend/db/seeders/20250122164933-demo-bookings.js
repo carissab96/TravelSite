@@ -1,35 +1,48 @@
 'use strict';
-const { Booking } = require('../models');
+const { Booking, User, Spot } = require('../models');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await Booking.bulkCreate([
-      {
-        spotId: 1,
-        userId: 1,
-        startDate: new Date('2025-02-01'),
-        endDate: new Date('2025-02-05'),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        spotId: 2,
-        userId: 2,
-        startDate: new Date('2025-03-15'),
-        endDate: new Date('2025-03-20'),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        spotId: 3,
-        userId: 3,
-        startDate: new Date('2025-04-10'),
-        endDate: new Date('2025-04-15'),
-        createdAt: new Date(),
-        updatedAt: new Date()
+    try {
+      const users = await User.findAll();
+      const spots = await Spot.findAll();
+
+      if (users.length === 0 || spots.length === 0) {
+        console.error('No users or spots found. Cannot seed bookings.');
+        return;
       }
-    ], { validate: true });
+
+      // Only create bookings if we have at least one spot and two users
+      if (spots.length > 0 && users.length > 1) {
+        await Booking.bulkCreate([
+          {
+            spotId: spots[0].id,
+            userId: users[1].id, // Use second user to book first spot
+            startDate: new Date('2025-02-01'),
+            endDate: new Date('2025-02-05'),
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        ], { validate: true });
+
+        // Only add second booking if we have at least two spots
+        if (spots.length > 1) {
+          await Booking.bulkCreate([
+            {
+              spotId: spots[1].id,
+              userId: users[0].id, // Use first user to book second spot
+              startDate: new Date('2025-03-15'),
+              endDate: new Date('2025-03-20'),
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          ], { validate: true });
+        }
+      }
+    } catch (error) {
+      console.error('Error seeding bookings:', error);
+    }
   },
 
   async down (queryInterface, Sequelize) {
