@@ -36,12 +36,27 @@ router.post(
       }
     });
 
-    if (!user || !bcrypt.compareSync(password, user?.hashedPassword?.toString())) {
-      const err = new Error('Invalid credentials');
-      err.status = 401;
-      err.title = 'Login failed';
-      err.errors = { credential: 'The provided credentials were invalid.' };
-      return next(err);
+    // Invalid credentials
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+        statusCode: 401,
+        errors: {
+          credential: "The provided credentials were invalid."
+        }
+      });
+    }
+
+    // Check password
+    const isValidPassword = bcrypt.compareSync(password, user.hashedPassword.toString());
+    if (!isValidPassword) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+        statusCode: 401,
+        errors: {
+          credential: "The provided credentials were invalid."
+        }
+      });
     }
 
     const safeUser = {
