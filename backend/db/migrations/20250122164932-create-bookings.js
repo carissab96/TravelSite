@@ -60,7 +60,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "Bookings";
-    await queryInterface.dropTable(options);
+    if (options.schema) {
+      await queryInterface.dropTable({ tableName: 'Bookings', schema: options.schema });
+    } else {
+      await queryInterface.dropTable('Bookings');
+    }
   }
 };
