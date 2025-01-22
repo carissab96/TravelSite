@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const { Op } = require('sequelize');
 
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
@@ -38,10 +39,31 @@ const validateSignup = [
 router.post(
   '/',
   validateSignup,
-  async (req, res, next) => {
+  async (req, res) => {
     const { email, password, username, firstName, lastName } = req.body;
 
     try {
+      // Check if user exists first
+      const existingUser = await User.findOne({
+        where: {
+          [Op.or]: [
+            { email: email },
+            { username: username }
+          ]
+        }
+      });
+
+      if (existingUser) {
+        return res.status(403).json({
+          message: "User already exists",
+          statusCode: 403,
+          errors: {
+            email: "User with that email already exists",
+            username: "User with that username already exists"
+          }
+        });
+      }
+
       const hashedPassword = bcrypt.hashSync(password);
       const user = await User.create({ 
         email, 
@@ -59,24 +81,32 @@ router.post(
         username: user.username,
       };
 
-      setTokenCookie(res, safeUser);
+      await setTokenCookie(res, safeUser);
 
-      return res.json({
+      return res.status(201).json({
         user: safeUser
       });
-    } catch (e) {
-      if (e.name === 'SequelizeUniqueConstraintError') {
-        const errors = {};
-        if (e.fields.email) errors.email = 'User with that email already exists';
-        if (e.fields.username) errors.username = 'User with that username already exists';
-        
-        const err = Error("User already exists");
-        err.errors = errors;
-        err.status = 403;
-        err.title = "User already exists";
-        return next(err);
+    } catch (error) {
+      if (error.name === 'SequelizeValidationError') {
+        return res.status(400).json({
+          message: "Validation error",
+          statusCode: 400,
+          errors: {
+            email: "Invalid email",
+            username: "Username is required",
+            firstName: "First Name is required",
+            lastName: "Last Name is required",
+            password: "Password is required"
+          }
+        });
       }
-      return next(e);
+      
+      // For any other errors, return 400
+      return res.status(400).json({
+        message: "Bad Request",
+        statusCode: 400,
+        errors: error.errors || { error: "An error occurred" }
+      });
     }
   }
 );  
