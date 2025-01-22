@@ -199,51 +199,59 @@ router.get('/:currentUserId/spots', async (req, res) => {
 // Get details of a spot by ID
 router.get('/:id', async (req, res) => {
   try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      // Validate the ID format (e.g., ensure it's a number)
-      if (isNaN(id) || id <= 0) {
-          return res.status(400).json({ message: 'Invalid user ID' });
-      }
+    const spot = await Spot.findByPk(id, {
+      include: [
+        {
+          model: SpotImage,
+          attributes: ['id', 'url', 'preview']
+        },
+        {
+          model: User,
+          as: 'Owner',
+          attributes: ['id', 'firstName', 'lastName']
+        }
+      ]
+    });
 
-      const spot = await Spot.findOne({
-          where: { id },
-          include: [
-              
-              {
-                  model: SpotImage,
-                  attributes: ['id', 'url', 'preview']
-              },
-              
-              {
-                  model: User, // Assuming User is the model for the owner
-                  attributes: ['id', 'firstName', 'lastName']
-              }
-          ],
-          attributes: {
-              include: [
-                  // Commenting out review aggregation for now
-                  /*
-                  [sequelize.fn('COUNT', sequelize.col('Reviews.id')), 'numReviews'],
-                  [sequelize.fn('AVG', sequelize.col('Reviews.starRating')), 'avgStarRating']
-                  */
-              ]
-          },
-          group: ['Spot.id', 'ownerId']
+    // Check if the spot exists
+    if (!spot) {
+      return res.status(404).json({
+        message: "Spot couldn't be found",
+        statusCode: 404
       });
+    }
 
-      // Check if the spot exists
-      if (!spot) {
-          return res.status(404).json({ message: "Spot couldn't be found" });
-      }
+    // Format the response to match API docs
+    const response = {
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: spot.lat,
+      lng: spot.lng,
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      numReviews: 0, // You'll need to implement this
+      avgStarRating: null, // You'll need to implement this
+      SpotImages: spot.SpotImages,
+      Owner: spot.Owner
+    };
 
-      return res.status(200).json(spot);
+    return res.json(response);
   } catch (error) {
-      console.error('Error fetching spot details:', error);
-      return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(404).json({
+      message: "Spot couldn't be found",
+      statusCode: 404
+    });
   }
 });
-
 
 // Add an image to a spot by ID
 router.post('/:id/images', async (req, res) => {
