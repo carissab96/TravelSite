@@ -1,5 +1,10 @@
 'use strict';
 
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -46,15 +51,16 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    });
+    }, options);
 
     // Add indexes for better query performance
-    await queryInterface.addIndex('Bookings', ['spotId']);
-    await queryInterface.addIndex('Bookings', ['userId']);
-    await queryInterface.addIndex('Bookings', ['startDate', 'endDate']);
+    await queryInterface.addIndex('Bookings', ['spotId'], options);
+    await queryInterface.addIndex('Bookings', ['userId'], options);
+    await queryInterface.addIndex('Bookings', ['startDate', 'endDate'], options);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Bookings');
+    options.tableName = "Bookings";
+    await queryInterface.dropTable(options);
   }
 };
