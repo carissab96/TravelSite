@@ -171,34 +171,32 @@ router.put('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
   const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
+  // Validation: Check for empty attributes
+  const errors = [];
+  if (!address) errors.push('Address is required');
+  if (!city) errors.push('City is required');
+  if (!state) errors.push('State is required');
+  if (!country) errors.push('Country is required');
+  if (lat === undefined) errors.push('Latitude is required');
+  if (lng === undefined) errors.push('Longitude is required');
+  if (!name) errors.push('Name is required');
+  if (!description) errors.push('Description is required');
+  if (price === undefined) errors.push('Price is required');
+
+  if (errors.length) {
+    return res.status(400).json({ errors });
+  }
+
   try {
-      const spot = await Spot.findByPk(spotId);
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) return res.status(404).json({ message: 'Spot not found' });
 
-      if (!spot) {
-          return res.status(404).json({ message: 'Spot not found' });
-      }
+    // Update the spot with the provided data
+    await spot.update({ address, city, state, country, lat, lng, name, description, price });
 
-      // Update the spot with new values
-      const updatedSpot = await spot.update({
-          address,
-          city,
-          state,
-          country,
-          lat,
-          lng,
-          name,
-          description,
-          price,
-          updatedAt: new Date(),
-      });
-
-      return res.status(200).json({
-          message: 'Spot updated successfully',
-          spot: updatedSpot,
-      });
+    return res.status(200).json({ spot });
   } catch (error) {
-      console.error('Error updating spot:', error);
-      return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: 'An error occurred while updating the spot' });
   }
 });
 
