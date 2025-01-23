@@ -1,66 +1,53 @@
 'use strict';
-const { Sequelize } = require('sequelize');
+
+const { Review } = require('../models');
+
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA; // define your schema in options object
+  options.schema = process.env.SCHEMA;
 }
-const { User, Spot, Review } = require('../models'); // Import User, Review, and Spot models
+
 module.exports = {
-  async up(queryInterface) {
- 
-
-    // Fetch existing spot IDs
-    const spots = await Spot.findAll();
-
-    const spotIds = spots.map(spot => spot.id);
-  
-
-    // Fetch the first user ID dynamically
-    const users = await User.findAll();
-    
-    const ownerId = users.length > 0 ? users[0].id : null; // Get the first user's ID
-
-    if (!ownerId) {
-      console.error("No valid user ID found. Cannot seed reviews.");
-      return;
+  async up(queryInterface, Sequelize) {
+    try {
+      await Review.bulkCreate([
+        {
+          spotId: 1,
+          userId: 2,
+          comment: "Great place to stay!",
+          stars: 5,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          spotId: 2,
+          userId: 1,
+          comment: "Decent spot, but could be cleaner",
+          stars: 4,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          spotId: 3,
+          userId: 3,
+          comment: "Amazing location and view!",
+          stars: 5,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ], { validate: true });
+    } catch (error) {
+      console.error('Error seeding reviews:', error);
     }
+  },
 
-
-    // Ensure there are valid spot IDs before seeding
-    if (spotIds.length < 2) {
-      console.error("Not enough Spot IDs found. At least 2 are required to seed reviews.");
-      return;
+  async down(queryInterface, Sequelize) {
+    if (process.env.NODE_ENV === 'production') {
+      // For production, use the schema-qualified table name
+      await queryInterface.sequelize.query(`DELETE FROM "${options.schema}"."Reviews";`);
+    } else {
+      // For development
+      await Review.destroy({ where: {} });
     }
-try {
-  await Review.bulkCreate([
-      {
-        spotId: spotIds[0], // Use the first existing spotId
-        userId: ownerId, // Use the dynamic user ID
-        stars: 5,
-        comment: 'Amazing place!',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        spotId: spotIds[1], // Use the second existing spotId
-        userId: ownerId, // Use the dynamic user ID
-        stars: 4,
-        comment: 'Great experience!',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ], { validate: true });
-  } catch (error) {
-    console.error("Error seeding reviews:", error);
   }
-  },
-
-  async down(queryInterface) {
-
-    options.tableName = 'Reviews';
-    const Op = Sequelize.Op;
-    return queryInterface.bulkDelete(options.tableName, {
-      userId: { [Op.in]: [1] },
-    }, {});
-  },
 };

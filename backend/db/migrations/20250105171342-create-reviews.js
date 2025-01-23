@@ -2,7 +2,7 @@
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
+  options.schema = process.env.SCHEMA;
 }
 
 module.exports = {
@@ -18,42 +18,56 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Spots',
-          key: 'id',
+          model: {
+            tableName: 'Spots',
+            schema: options.schema
+          },
+          key: 'id'
         },
+        onDelete: 'CASCADE'
       },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id',
+          model: {
+            tableName: 'Users',
+            schema: options.schema
+          },
+          key: 'id'
         },
+        onDelete: 'CASCADE'
       },
       stars: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        validate: {
+          min: 1,
+          max: 5
+        }
       },
       comment: {
         type: Sequelize.TEXT,
-        allowNull: true,
+        allowNull: true
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      }
     }, options);
-
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "Reviews";
-    return queryInterface.dropTable(options.tableName);
+    if (process.env.NODE_ENV === 'production') {
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS "${options.schema}"."Reviews" CASCADE;`);
+    } else {
+      await queryInterface.dropTable('Reviews');
+    }
   }
-}
+};
