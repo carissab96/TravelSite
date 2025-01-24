@@ -251,21 +251,39 @@ router.put('/:spotId/:userId/reviews/:id', async (req, res) => {
 });
 
 // Delete a review
-router.delete('/:spotId/:userId/reviews/:id', async (req, res) => {
-    const { id } = req.params;
-    const { spotId } = req.params;
+router.delete('/:reviewId', requireAuth, async (req, res) => {
+    const { reviewId } = req.params;
     const userId = req.user.id;
 
-    console.log(`Attempting to delete review ${id} for spot ${spotId} which belongs to ${userId}`);
-
     try {
-        const deleted = await Review.destroy({ where: { id: id } });
-        if (!deleted) {
-            return res.status(404).json({ message: 'Review not found' });
+        const review = await Review.findByPk(reviewId);
+        
+        if (!review) {
+            return res.status(404).json({
+                message: "Review couldn't be found",
+                statusCode: 404
+            });
         }
-        res.status(204).send(); // No content to send back
+
+        // Check if the review belongs to the current user
+        if (review.userId !== userId) {
+            return res.status(403).json({
+                message: "Forbidden",
+                statusCode: 403
+            });
+        }
+
+        await review.destroy();
+        return res.status(200).json({
+            message: "Successfully deleted",
+            statusCode: 200
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting review', error });
+        console.error('Error deleting review:', error);
+        return res.status(500).json({
+            message: "Internal server error",
+            statusCode: 500
+        });
     }
 });
 
