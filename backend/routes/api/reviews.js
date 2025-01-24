@@ -148,7 +148,7 @@ router.get('/:spotId/reviews', async (req, res) => {
 
 // Add an Image to a Review
 router.post('/:reviewId/images', async (req, res) => {
-  const { url } = req.body;
+  const { image_url } = req.body;
   const { reviewId } = req.params;
 
   try {
@@ -183,12 +183,12 @@ router.post('/:reviewId/images', async (req, res) => {
 
     const newImage = await ReviewImage.create({
       reviewId,
-      url
+      image_url
     });
 
     return res.json({
       id: newImage.id,
-      url: newImage.url
+      image_url: newImage.image_url
     });
   } catch (error) {
     return res.status(400).json({
