@@ -7,9 +7,9 @@ const { Review, Spot, User, ReviewImage } = require('../../db/models');
 const router = express.Router();
 
 const validateReview = [
-  check('review')
+  check('comment')
     .exists({ checkFalsy: true })
-    .withMessage('Review text is required'),
+    .withMessage('Comment text is required'),
   check('stars')
     .exists({ checkFalsy: true })
     .isInt({ min: 1, max: 5 })
@@ -31,7 +31,7 @@ router.get('/test', (req, res) => {
 
 // Create a review for a Spot
 router.post('/:spotId/reviews', validateReview, async (req, res) => {
-  const { review, stars } = req.body;
+  const { comment, stars } = req.body;
   const { spotId } = req.params;
   
   try {
@@ -62,7 +62,7 @@ router.post('/:spotId/reviews', validateReview, async (req, res) => {
     const newReview = await Review.create({
       spotId: parseInt(spotId),
       userId: req.user.id,
-      comment: review,
+      comment,
       stars
     });
 
