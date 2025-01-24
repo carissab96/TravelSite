@@ -87,26 +87,28 @@ router.post(
         user: safeUser
       });
     } catch (error) {
+      console.error('Error with user operation:', error);
       if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }));
         return res.status(400).json({
-          message: "Validation error",
-          statusCode: 400,
-          errors: {
-            email: "Invalid email",
-            username: "Username is required",
-            firstName: "First Name is required",
-            lastName: "Last Name is required",
-            password: "Password is required"
-          }
+          message: 'Validation error',
+          errors
         });
       }
-      
-      // For any other errors, return 400
-      return res.status(400).json({
-        message: "Bad Request",
-        statusCode: 400,
-        errors: error.errors || { error: "An error occurred" }
-      });
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        const errors = error.errors.map(err => ({
+          field: err.path,
+          message: `${err.path} is already in use`
+        }));
+        return res.status(400).json({
+          message: 'Validation error',
+          errors
+        });
+      }
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 );  

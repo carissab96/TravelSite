@@ -68,20 +68,18 @@ router.post('/:spotId/reviews', validateReview, async (req, res) => {
 
     return res.status(201).json(newReview);
   } catch (error) {
+    console.error('Error creating review:', error);
     if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
       return res.status(400).json({
-        message: "Validation error",
-        statusCode: 400,
-        errors: {
-          review: "Review text is required",
-          stars: "Stars must be an integer from 1 to 5"
-        }
+        message: 'Validation error',
+        errors
       });
     }
-    return res.status(400).json({
-      message: "Bad Request",
-      statusCode: 400
-    });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -229,8 +227,18 @@ router.put('/:spotId/:userId/reviews/:id', async (req, res) => {
             return res.status(200).json({ message: 'Review updated successfully', updatedReview });
   
     } catch (error) {
-        console.error('Error updating review:', error);
-        return res.status(500).json({ message: 'Error updating review', error });
+      console.error('Error updating review:', error);
+      if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }));
+        return res.status(400).json({
+          message: 'Validation error',
+          errors
+        });
+      }
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 

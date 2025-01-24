@@ -161,7 +161,17 @@ router.post('/', requireAuth, [
       spot: newSpot,
     });
   } catch (error) {
-    console.error('Error creating spot:', error); // Log the error
+    console.error('Error creating spot:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      return res.status(400).json({
+        message: 'Validation error',
+        errors
+      });
+    }
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -196,7 +206,18 @@ router.put('/:spotId', requireAuth, async (req, res) => {
 
     return res.status(200).json({ spot });
   } catch (error) {
-    return res.status(500).json({ message: 'An error occurred while updating the spot' });
+    console.error('Error updating spot:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      return res.status(400).json({
+        message: 'Validation error',
+        errors
+      });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -290,6 +311,16 @@ router.post('/:id/images', requireAuth, async (req, res) => {
         });
     } catch (error) {
         console.error('Error adding image to spot:', error);
+        if (error.name === 'SequelizeValidationError') {
+          const errors = error.errors.map(err => ({
+            field: err.path,
+            message: err.message
+          }));
+          return res.status(400).json({
+            message: 'Validation error',
+            errors
+          });
+        }
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -325,6 +356,16 @@ router.put('/:id/images/:imageId', requireAuth, async (req, res) => {
       });
   } catch (error) {
       console.error('Error updating image:', error);
+      if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }));
+        return res.status(400).json({
+          message: 'Validation error',
+          errors
+        });
+      }
       return res.status(500).json({ message: 'Internal Server Error' });
   }
 });

@@ -34,10 +34,18 @@ router.get('/current', requireAuth, async (req, res) => {
 
     return res.json({ Bookings: bookings });
   } catch (error) {
-    return res.status(400).json({
-      message: "Couldn't find bookings",
-      statusCode: 400
-    });
+    console.error('Error with booking:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      return res.status(400).json({
+        message: 'Validation error',
+        errors
+      });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -104,20 +112,18 @@ router.post('/spots/:spotId/bookings', requireAuth, validateBooking, async (req,
 
     return res.status(201).json(booking);
   } catch (error) {
+    console.error('Error with booking:', error);
     if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
       return res.status(400).json({
-        message: "Validation error",
-        statusCode: 400,
-        errors: {
-          startDate: "Start date must be in the future",
-          endDate: "End date must be after start date"
-        }
+        message: 'Validation error',
+        errors
       });
     }
-    return res.status(400).json({
-      message: "Bad Request",
-      statusCode: 400
-    });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -191,20 +197,18 @@ router.put('/:bookingId', requireAuth, validateBooking, async (req, res) => {
 
     return res.json(booking);
   } catch (error) {
+    console.error('Error with booking:', error);
     if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
       return res.status(400).json({
-        message: "Validation error",
-        statusCode: 400,
-        errors: {
-          startDate: "Start date must be in the future",
-          endDate: "End date must be after start date"
-        }
+        message: 'Validation error',
+        errors
       });
     }
-    return res.status(400).json({
-      message: "Bad Request",
-      statusCode: 400
-    });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -248,10 +252,18 @@ router.delete('/:bookingId', requireAuth, async (req, res) => {
       statusCode: 200
     });
   } catch (error) {
-    return res.status(400).json({
-      message: "Bad Request",
-      statusCode: 400
-    });
+    console.error('Error with booking:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      return res.status(400).json({
+        message: 'Validation error',
+        errors
+      });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
