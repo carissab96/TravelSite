@@ -84,8 +84,15 @@ router.post('/:spotId/reviews', validateReview, async (req, res) => {
 });
 
 // Get all Reviews of the Current User
-router.get('/user/reviews', async (req, res) => {
+router.get('/current', requireAuth, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Authentication required",
+        statusCode: 401
+      });
+    }
+
     const reviews = await Review.findAll({
       where: { userId: req.user.id },
       include: [
@@ -104,11 +111,12 @@ router.get('/user/reviews', async (req, res) => {
       ]
     });
 
-    return res.json({ reviews });
+    return res.json({ Reviews: reviews });  
   } catch (error) {
-    return res.status(400).json({
-      message: "Bad Request",
-      statusCode: 400
+    console.error('Error getting user reviews:', error);  
+    return res.status(500).json({  
+      message: "An error occurred while fetching reviews",
+      statusCode: 500
     });
   }
 });
