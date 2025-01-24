@@ -296,6 +296,18 @@ router.post('/:id/images', requireAuth, async (req, res) => {
             return res.status(403).json({ message: 'Forbidden: You do not have permission to add an image to this spot' });
         }
 
+        // Check maximum images
+        const imageCount = await SpotImage.count({
+            where: { spotId: spot.id }
+        });
+
+        if (imageCount >= 10) {
+            return res.status(403).json({
+                message: "Maximum number of images for this spot was reached",
+                statusCode: 403
+            });
+        }
+
         // Create the new image in the database
         const newImage = await SpotImage.create({
             spotId: spot.id,
