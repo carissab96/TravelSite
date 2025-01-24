@@ -32,18 +32,33 @@ module.exports = (sequelize, DataTypes) => {
     address: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [1, 250]
+      }
     },
     city: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [1, 90],
+        is: /^[A-Z][a-zA-Z\s]*$/,
+      }
     },
     state: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        isUppercase: true,
+        len: [2, 2],
+        is: /^[A-Z]{2}$/,
+      }
     },
     country: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [1, 90],// Country must be between 1 and 90 characters
+      }
     },
     lat: {
       type: DataTypes.FLOAT,
@@ -65,18 +80,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [1, 50], // Name must be between 1 and 50 characters
+        len: [1, 50],
+        is: /^[A-Z][a-zA-Z0-9\s]*$/
       },
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
+      validate: {
+        len: [1, 500], // Description must be between 1 and 500 characters
+      }
     },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
-        min: 0, // Price must be a positive number
+        min: 1, // Price must not be less than 1
       },
     },
   }, {
