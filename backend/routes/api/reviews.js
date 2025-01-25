@@ -25,10 +25,6 @@ router.use((req, res, next) => {
 // Authentication middleware
 router.use(requireAuth); // Ensure this is applied before the routes
 
-router.get('/test', (req, res) => {
-    res.json({ message: 'Auth successful, route reached!' });
-});
-
 // Create a review for a Spot
 router.post('/:spotId/reviews', validateReview, async (req, res) => {
   const { comment, stars } = req.body;
@@ -252,21 +248,16 @@ router.put('/:spotId/:userId/reviews/:id', async (req, res) => {
 
 // Delete a review
 router.delete('/:reviewId', requireAuth, async (req, res) => {
-    const { reviewId } = req.params;
+    const reviewId = parseInt(req.params.reviewId, 10);
     const userId = req.user.id;
 
-    console.log(`Attempting to delete review with ID: ${reviewId} by user: ${userId}`);
-
     try {
-        // First, let's see what reviews exist for this user
-        const userReviews = await Review.findAll({
-            where: { userId },
-            attributes: ['id', 'spotId', 'stars', 'comment']
+        const review = await Review.findOne({
+            where: {
+                id: reviewId,
+                userId: userId
+            }
         });
-        console.log('Current user reviews:', JSON.stringify(userReviews, null, 2));
-
-        const review = await Review.findByPk(reviewId);
-        console.log('Found review:', review ? JSON.stringify(review, null, 2) : 'No review found');
         
         if (!review) {
             return res.status(404).json({
@@ -275,22 +266,18 @@ router.delete('/:reviewId', requireAuth, async (req, res) => {
             });
         }
 
-        // Check if the review belongs to the current user
-        if (review.userId !== userId) {
-            console.log(`Review userId (${review.userId}) doesn't match current userId (${userId})`);
-            return res.status(403).json({
-                message: "Forbidden",
-                statusCode: 403
-            });
-        }
-
-        await review.destroy();
+        await Review.destroy({
+            where: {
+                id: reviewId,
+                userId: userId
+            }
+        });
+        
         return res.status(200).json({
             message: "Successfully deleted",
             statusCode: 200
         });
     } catch (error) {
-        console.error('Error deleting review:', error);
         return res.status(500).json({
             message: "Internal server error",
             statusCode: 500
@@ -323,10 +310,4 @@ router.delete('/ReviewImages/:id', async (req, res) => {
     }
 });
 
-//test route
-router.get('/test', (res, req) => {
-    res.json({ message: 'Test route in spots is working!'});
-});
-    
-
-    module.exports = router;
+module.exports = router;
