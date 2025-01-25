@@ -16,19 +16,69 @@ router.get('/', async (req, res) => {
     country,
     minPrice,
     maxPrice,
+    minLat,
+    maxLat,
+    minLng,
+    maxLng,
+    name,
     page = 1,
     size = 20
   } = req.query;
 
-  console.log('Query params:', req.query);
+  // Validate query parameters
+  const errors = {};
+  
+  // Validate price ranges
+  if (minPrice && (isNaN(minPrice) || parseFloat(minPrice) < 0)) {
+    errors.minPrice = "Minimum price must be greater than or equal to 0";
+  }
+  if (maxPrice && (isNaN(maxPrice) || parseFloat(maxPrice) < 0)) {
+    errors.maxPrice = "Maximum price must be greater than or equal to 0";
+  }
+  if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
+    errors.price = "Minimum price cannot be greater than maximum price";
+  }
+  
+  // Validate latitude ranges
+  if (minLat && (isNaN(minLat) || parseFloat(minLat) < -90 || parseFloat(minLat) > 90)) {
+    errors.minLat = "Minimum latitude must be between -90 and 90";
+  }
+  if (maxLat && (isNaN(maxLat) || parseFloat(maxLat) < -90 || parseFloat(maxLat) > 90)) {
+    errors.maxLat = "Maximum latitude must be between -90 and 90";
+  }
+  
+  // Validate longitude ranges
+  if (minLng && (isNaN(minLng) || parseFloat(minLng) < -180 || parseFloat(minLng) > 180)) {
+    errors.minLng = "Minimum longitude must be between -180 and 180";
+  }
+  if (maxLng && (isNaN(maxLng) || parseFloat(maxLng) < -180 || parseFloat(maxLng) > 180)) {
+    errors.maxLng = "Maximum longitude must be between -180 and 180";
+  }
+
+  // Validate page and size
+  if (page && (isNaN(page) || parseInt(page) < 1)) {
+    errors.page = "Page must be greater than or equal to 1";
+  }
+  if (size && (isNaN(size) || parseInt(size) < 1)) {
+    errors.size = "Size must be greater than or equal to 1";
+  }
+
+  // Return validation errors if any
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({
+      message: "Bad Request",
+      errors: errors
+    });
+  }
 
   try {
     const where = {};
     
     // Add filters based on query parameters
-    if (city) where.city = city;  // Exact match for now
-    if (state) where.state = state;  // Exact match for now
-    if (country) where.country = country;
+    if (city) where.city = { [Op.iLike]: `%${city}%` };
+    if (state) where.state = { [Op.iLike]: `%${state}%` };
+    if (country) where.country = { [Op.iLike]: `%${country}%` };
+    if (name) where.name = { [Op.iLike]: `%${name}%` };
     
     // Price range filter
     if (minPrice || maxPrice) {
@@ -36,14 +86,26 @@ router.get('/', async (req, res) => {
       if (minPrice) where.price[Op.gte] = parseFloat(minPrice);
       if (maxPrice) where.price[Op.lte] = parseFloat(maxPrice);
     }
-
-    console.log('Where clause:', where);
+    
+    // Latitude range filter
+    if (minLat || maxLat) {
+      where.lat = {};
+      if (minLat) where.lat[Op.gte] = parseFloat(minLat);
+      if (maxLat) where.lat[Op.lte] = parseFloat(maxLat);
+    }
+    
+    // Longitude range filter
+    if (minLng || maxLng) {
+      where.lng = {};
+      if (minLng) where.lng[Op.gte] = parseFloat(minLng);
+      if (maxLng) where.lng[Op.lte] = parseFloat(maxLng);
+    }
 
     // Calculate pagination
     const limit = parseInt(size);
     const offset = (parseInt(page) - 1) * limit;
 
-    const spots = await Spot.findAll({
+    const { count, rows: spots } = await Spot.findAndCountAll({
       where,
       limit,
       offset,
@@ -57,8 +119,6 @@ router.get('/', async (req, res) => {
       ]
     });
 
-    console.log('Found spots:', spots.length);
-
     // Format spots to include preview image
     const formattedSpots = spots.map(spot => {
       const spotData = spot.toJSON();
@@ -70,14 +130,14 @@ router.get('/', async (req, res) => {
     return res.json({
       Spots: formattedSpots,
       page: parseInt(page),
-      size: parseInt(size)
+      size: parseInt(size),
+      totalSpots: count,
+      totalPages: Math.ceil(count / limit)
     });
   } catch (error) {
-    console.error('Error fetching spots:', error);
     return res.status(500).json({
       message: "Internal server error",
-      statusCode: 500,
-      error: error.message
+      statusCode: 500
     });
   }
 });
