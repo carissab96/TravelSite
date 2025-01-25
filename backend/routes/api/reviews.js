@@ -255,8 +255,18 @@ router.delete('/:reviewId', requireAuth, async (req, res) => {
     const { reviewId } = req.params;
     const userId = req.user.id;
 
+    console.log(`Attempting to delete review with ID: ${reviewId} by user: ${userId}`);
+
     try {
+        // First, let's see what reviews exist for this user
+        const userReviews = await Review.findAll({
+            where: { userId },
+            attributes: ['id', 'spotId', 'stars', 'comment']
+        });
+        console.log('Current user reviews:', JSON.stringify(userReviews, null, 2));
+
         const review = await Review.findByPk(reviewId);
+        console.log('Found review:', review ? JSON.stringify(review, null, 2) : 'No review found');
         
         if (!review) {
             return res.status(404).json({
@@ -267,6 +277,7 @@ router.delete('/:reviewId', requireAuth, async (req, res) => {
 
         // Check if the review belongs to the current user
         if (review.userId !== userId) {
+            console.log(`Review userId (${review.userId}) doesn't match current userId (${userId})`);
             return res.status(403).json({
                 message: "Forbidden",
                 statusCode: 403
