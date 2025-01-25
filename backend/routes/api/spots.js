@@ -16,60 +16,19 @@ router.get('/', async (req, res) => {
     country,
     minPrice,
     maxPrice,
-    minLat,
-    maxLat,
-    minLng,
-    maxLng,
-    name,
     page = 1,
     size = 20
   } = req.query;
 
-  // Validate query parameters
-  const errors = {};
-  
-  // Validate price ranges
-  if (minPrice && isNaN(minPrice)) errors.minPrice = "Minimum price must be a valid number";
-  if (maxPrice && isNaN(maxPrice)) errors.maxPrice = "Maximum price must be a valid number";
-  if (minPrice && minPrice < 0) errors.minPrice = "Minimum price must be greater than or equal to 0";
-  if (maxPrice && maxPrice < 0) errors.maxPrice = "Maximum price must be greater than or equal to 0";
-  
-  // Validate latitude ranges
-  if (minLat && (isNaN(minLat) || minLat < -90 || minLat > 90)) {
-    errors.minLat = "Minimum latitude must be between -90 and 90";
-  }
-  if (maxLat && (isNaN(maxLat) || maxLat < -90 || maxLat > 90)) {
-    errors.maxLat = "Maximum latitude must be between -90 and 90";
-  }
-  
-  // Validate longitude ranges
-  if (minLng && (isNaN(minLng) || minLng < -180 || minLng > 180)) {
-    errors.minLng = "Minimum longitude must be between -180 and 180";
-  }
-  if (maxLng && (isNaN(maxLng) || maxLng < -180 || maxLng > 180)) {
-    errors.maxLng = "Maximum longitude must be between -180 and 180";
-  }
-
-  // Validate page and size
-  if (page && (isNaN(page) || page < 1)) errors.page = "Page must be greater than or equal to 1";
-  if (size && (isNaN(size) || size < 1)) errors.size = "Size must be greater than or equal to 1";
-
-  // Return validation errors if any
-  if (Object.keys(errors).length > 0) {
-    return res.status(400).json({
-      message: "Bad Request",
-      errors: errors
-    });
-  }
+  console.log('Query params:', req.query);
 
   try {
     const where = {};
     
     // Add filters based on query parameters
-    if (city) where.city = { [Op.iLike]: `%${city}%` };
-    if (state) where.state = { [Op.iLike]: `%${state}%` };
-    if (country) where.country = { [Op.iLike]: `%${country}%` };
-    if (name) where.name = { [Op.iLike]: `%${name}%` };
+    if (city) where.city = city;  // Exact match for now
+    if (state) where.state = state;  // Exact match for now
+    if (country) where.country = country;
     
     // Price range filter
     if (minPrice || maxPrice) {
@@ -77,75 +36,48 @@ router.get('/', async (req, res) => {
       if (minPrice) where.price[Op.gte] = parseFloat(minPrice);
       if (maxPrice) where.price[Op.lte] = parseFloat(maxPrice);
     }
-    
-    // Latitude range filter
-    if (minLat || maxLat) {
-      where.lat = {};
-      if (minLat) where.lat[Op.gte] = parseFloat(minLat);
-      if (maxLat) where.lat[Op.lte] = parseFloat(maxLat);
-    }
-    
-    // Longitude range filter
-    if (minLng || maxLng) {
-      where.lng = {};
-      if (minLng) where.lng[Op.gte] = parseFloat(minLng);
-      if (maxLng) where.lng[Op.lte] = parseFloat(maxLng);
-    }
+
+    console.log('Where clause:', where);
 
     // Calculate pagination
     const limit = parseInt(size);
     const offset = (parseInt(page) - 1) * limit;
 
-    const { count, rows: Spots } = await Spot.findAndCountAll({
+    const spots = await Spot.findAll({
       where,
       limit,
       offset,
-      attributes: [
-        'id',
-        'ownerId',
-        'address',
-        'city',
-        'state',
-        'country',
-        'lat',
-        'lng',
-        'name',
-        'description',
-        'price',
-        'createdAt',
-        'updatedAt'
-      ],
       include: [
         {
           model: SpotImage,
           attributes: ['url'],
           where: { preview: true },
-          required: false,
-          limit: 1
+          required: false
         }
       ]
     });
 
+    console.log('Found spots:', spots.length);
+
     // Format spots to include preview image
-    const formattedSpots = Spots.map(spot => {
+    const formattedSpots = spots.map(spot => {
       const spotData = spot.toJSON();
       spotData.previewImage = spot.SpotImages?.[0]?.url || null;
       delete spotData.SpotImages;
       return spotData;
     });
 
-    return res.status(200).json({
+    return res.json({
       Spots: formattedSpots,
       page: parseInt(page),
-      size: parseInt(size),
-      totalSpots: count,
-      totalPages: Math.ceil(count / size)
+      size: parseInt(size)
     });
   } catch (error) {
     console.error('Error fetching spots:', error);
     return res.status(500).json({
       message: "Internal server error",
-      statusCode: 500
+      statusCode: 500,
+      error: error.message
     });
   }
 });
