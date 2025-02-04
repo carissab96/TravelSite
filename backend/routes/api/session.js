@@ -26,6 +26,7 @@ router.post(
   validateLogin,
   async (req, res, next) => {
     const { credential, password } = req.body;
+    console.log('Login attempt:', { credential });
 
     const user = await User.scope('loginUser').findOne({
       where: {
@@ -48,7 +49,9 @@ router.post(
     }
 
     // Check password
+    console.log('Found user:', { username: user.username, hashedPassword: user.hashedPassword });
     const isValidPassword = bcrypt.compareSync(password, user.hashedPassword.toString());
+    console.log('Password check:', { isValid: isValidPassword });
     if (!isValidPassword) {
       return res.status(401).json({
         message: "Invalid credentials",
