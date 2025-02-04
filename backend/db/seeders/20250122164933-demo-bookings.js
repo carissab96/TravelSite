@@ -1,10 +1,19 @@
 'use strict';
-const { Booking, User, Spot } = require('../models');
+
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;
+}
+
+const { User, Spot } = require('../models');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
+    options.tableName = 'Bookings';
+
     try {
+      // First verify that we have users and spots in the database
       const users = await User.findAll();
       const spots = await Spot.findAll();
 
@@ -13,41 +22,40 @@ module.exports = {
         return;
       }
 
-      // Only create bookings if we have at least one spot and two users
-      if (spots.length > 0 && users.length > 1) {
-        await Booking.bulkCreate([
-          {
-            spotId: spots[0].id,
-            userId: users[1].id, // Use second user to book first spot
-            startDate: new Date('2025-02-01'),
-            endDate: new Date('2025-02-05'),
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ], { validate: true });
-
-        // Only add second booking if we have at least two spots
-        if (spots.length > 1) {
-          await Booking.bulkCreate([
-            {
-              spotId: spots[1].id,
-              userId: users[0].id, // Use first user to book second spot
-              startDate: new Date('2025-03-15'),
-              endDate: new Date('2025-03-20'),
-              createdAt: new Date(),
-              updatedAt: new Date()
-            }
-          ], { validate: true });
+      // Proceed with seeding only if we have the required data
+      return queryInterface.bulkInsert(options, [
+        {
+          spotId: spots[0].id,
+          userId: users[0].id,
+          startDate: new Date('2025-02-01'),
+          endDate: new Date('2025-02-05'),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          spotId: spots[1].id,
+          userId: users[1].id,
+          startDate: new Date('2025-02-10'),
+          endDate: new Date('2025-02-15'),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          spotId: spots[2].id,
+          userId: users[2].id,
+          startDate: new Date('2025-02-20'),
+          endDate: new Date('2025-02-25'),
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
-      }
+      ], {});
     } catch (error) {
       console.error('Error seeding bookings:', error);
     }
   },
 
-  async down (queryInterface, Sequelize) {
-    await Booking.destroy({
-      where: {}
-    });
+  async down(queryInterface, Sequelize) {
+    options.tableName = 'Bookings';
+    return queryInterface.bulkDelete(options, null, {});
   }
 };
