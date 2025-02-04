@@ -87,6 +87,16 @@ module.exports = {
   
    async down (queryInterface, Sequelize){
       options.tableName = "Spots";
-      await queryInterface.dropTable(options.tableName);
+      const schema = process.env.NODE_ENV === 'production' ? process.env.SCHEMA : '';
+      const schemaPrefix = schema ? `${schema}.` : '';
+      
+      // Drop foreign key constraint first
+      await queryInterface.sequelize.query(`
+        ALTER TABLE ${schemaPrefix}"Spots" 
+        DROP CONSTRAINT IF EXISTS "Spots_ownerId_fkey";
+      `);
+      
+      // Then drop the table
+      await queryInterface.dropTable(options);
     },
   };
