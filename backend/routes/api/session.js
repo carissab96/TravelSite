@@ -1,6 +1,7 @@
 // backend/routes/api/session.js
 const express = require('express');
 const { Op } = require('sequelize');
+const { sequelize } = require('../../db/models');
 const bcrypt = require('bcryptjs');
 const { setTokenCookie, restoreUser } = require('../../utils/auth');
 const { User } = require('../../db/models');
@@ -46,10 +47,10 @@ router.post(
     console.log('Searching for user...');
     const user = await User.scope('loginUser').findOne({
       where: {
-        [Op.or]: {
-          username: credential,
-          email: credential
-        }
+        [Op.or]: [
+          sequelize.where(sequelize.fn('LOWER', sequelize.col('username')), sequelize.fn('LOWER', credential)),
+          sequelize.where(sequelize.fn('LOWER', sequelize.col('email')), sequelize.fn('LOWER', credential))
+        ]
       }
     });
 
