@@ -30,21 +30,7 @@ router.post(
   '/',
   validateLogin,
   async (req, res, next) => {
-    console.log('=== Login Route Started ===');
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('JWT Config:', {
-      secretExists: !!process.env.JWT_SECRET,
-      expiresIn: process.env.JWT_EXPIRES_IN
-    });
-    console.log('Request body:', req.body);
     const { credential, password } = req.body;
-    console.log('Login attempt for credential:', credential);
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
-    console.log('JWT Expires In:', process.env.JWT_EXPIRES_IN);
-    console.log('Login attempt:', { credential, password });
-
-    console.log('Searching for user...');
     const user = await User.scope('loginUser').findOne({
       where: {
         [Op.or]: [
@@ -54,8 +40,6 @@ router.post(
       }
     });
 
-    console.log('User search result:', user ? 'Found' : 'Not found');
-    
     // Invalid credentials
     if (!user) {
       return res.status(401).json({
@@ -68,9 +52,7 @@ router.post(
     }
 
     // Check password
-    console.log('Found user:', { username: user.username, hashedPassword: user.hashedPassword });
     const isValidPassword = bcrypt.compareSync(password, user.hashedPassword.toString());
-    console.log('Password check:', { isValid: isValidPassword });
     if (!isValidPassword) {
       return res.status(401).json({
         message: "Invalid credentials",
@@ -89,9 +71,7 @@ router.post(
       username: user.username,
     };
 
-    const token = await setTokenCookie(res, safeUser);
-    console.log('Set token cookie:', token ? 'Token set' : 'Token not set');
-    console.log('Response cookies:', res.getHeaders()['set-cookie']);
+    await setTokenCookie(res, safeUser);
 
     return res.json({
       user: safeUser
