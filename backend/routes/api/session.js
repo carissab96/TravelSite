@@ -31,6 +31,9 @@ router.post(
   async (req, res, next) => {
     console.log('Request body:', req.body);
     const { credential, password } = req.body;
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+    console.log('JWT Expires In:', process.env.JWT_EXPIRES_IN);
     console.log('Login attempt:', { credential, password });
 
     const user = await User.scope('loginUser').findOne({
@@ -75,7 +78,9 @@ router.post(
       username: user.username,
     };
 
-    await setTokenCookie(res, safeUser);
+    const token = await setTokenCookie(res, safeUser);
+    console.log('Set token cookie:', token ? 'Token set' : 'Token not set');
+    console.log('Response cookies:', res.getHeaders()['set-cookie']);
 
     return res.json({
       user: safeUser
