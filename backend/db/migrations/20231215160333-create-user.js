@@ -42,10 +42,30 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    console.log('user down'); //Marlon's work around until we can figure out order
-    //ERROR DETAIL: constraint spots_ownerId_fkey on table schema.spots depends on table schema."Users"
-    options.tableName = "Users";
-    // await queryInterface.removeConstraint('schema.spots', 'spots_ownerId_fkey');
-    return queryInterface.dropTable(options);
+    const schema = process.env.NODE_ENV === 'production' ? process.env.SCHEMA : '';
+    const prefix = schema ? `"${schema}".` : '';
+
+    // Drop all tables in reverse order
+    try {
+      // First drop ReviewImages
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"ReviewImages" CASCADE;`);
+      
+      // Then drop SpotImages
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"SpotImages" CASCADE;`);
+      
+      // Then drop Reviews
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"Reviews" CASCADE;`);
+      
+      // Then drop Spots
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"Spots" CASCADE;`);
+      
+      // Finally drop Users
+      await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"Users" CASCADE;`);
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error in down migration:', error);
+      return Promise.reject(error);
+    }
   }
 };

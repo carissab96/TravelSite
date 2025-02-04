@@ -7,11 +7,21 @@ module.exports = (sequelize, DataTypes) => {
   
   class User extends Model {
     static associate(models) {
+      // Define associations with CASCADE delete
       User.hasMany(models.Spot, { 
         foreignKey: 'ownerId',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        hooks: true
       });
 
+      // Add any other associations here with CASCADE
+      if (models.Review) {
+        User.hasMany(models.Review, {
+          foreignKey: 'userId',
+          onDelete: 'CASCADE',
+          hooks: true
+        });
+      }
     }
   }
 
