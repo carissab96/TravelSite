@@ -10,6 +10,10 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
 const validateLogin = [
+  (req, res, next) => {
+    console.log('Validating request:', req.body);
+    next();
+  },
   check('credential')
     .exists({ checkFalsy: true })
     .notEmpty()
@@ -25,8 +29,9 @@ router.post(
   '/',
   validateLogin,
   async (req, res, next) => {
+    console.log('Request body:', req.body);
     const { credential, password } = req.body;
-    console.log('Login attempt:', { credential });
+    console.log('Login attempt:', { credential, password });
 
     const user = await User.scope('loginUser').findOne({
       where: {
