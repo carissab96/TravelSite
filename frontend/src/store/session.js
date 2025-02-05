@@ -3,6 +3,7 @@ import { fetchWithCsrf } from './csrf';
 // Action Types
 const SET_USER = 'session/SET_USER';
 const REMOVE_USER = 'session/REMOVE_USER';
+const SIGNUP_USER = 'session/SIGNUP_USER';
 
 // Action Creators
 const setUser = (user) => ({
@@ -12,6 +13,11 @@ const setUser = (user) => ({
 
 const removeUser = () => ({
     type: REMOVE_USER
+});
+
+const signUpUser = () => ({
+    type: SIGNUP_USER,
+    payload: user
 });
 
 // Thunk Action Creators
@@ -93,6 +99,16 @@ const sessionReducer = (state = initialState, action) => {
         case REMOVE_USER:
             return { 
                 user: null
+            };
+        case SIGNUP_USER:
+            return { 
+                user: action.payload ? {
+                    id: action.payload.id,
+                    email: action.payload.email,
+                    username: action.payload.username,
+                    firstName: action.payload.firstName,
+                    lastName: action.payload.lastName
+                } : null
             };
         default:
             return state;

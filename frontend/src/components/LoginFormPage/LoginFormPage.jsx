@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as sessionActions from '../store/session';
+import * as sessionActions from '../../store/session';
 import { useNavigate } from 'react-router-dom';
-import './LoginFormPage/LoginForm.css';
+import './LoginForm.css';
 
 
 // These hooks set up your component's state and Redux connection
