@@ -1,9 +1,25 @@
-/* TODO: Add components and logic here */
+import react from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import LoginFormPage from './components/LoginFormPage.jsx';
 
-// src/App.jsx
+
+const HomePage = () => {
+  return <h1> Hello from Home Page </h1>;
+}
+// Create router configuration
+const router = createBrowserRouter([
+  {
+      path: '/',
+      element: <HomePage />
+  },
+  {
+      path: '/login',
+      element: <LoginFormPage />
+  }
+]);
 
 function App() {
-  return <h1> Hello from App </h1>;
+  return <RouterProvider router={router} />;
 }
 
 export default App;
