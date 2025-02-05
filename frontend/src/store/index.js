@@ -1,14 +1,10 @@
 import { legacy_createStore as createStore, combineReducers, applyMiddleware, compose } from "redux";
-import thunk from "redux-thunk";
-
-// Uncomment and update these imports when you have the reducer files ready
-// import authReducer from "./auth";
-// import uiReducer from "./ui";
+import { thunk } from "redux-thunk";
+import sessionReducer from './session';
 
 const rootReducer = combineReducers({
-    // Uncomment these when you have the reducers ready
-    // auth: authReducer,
-    // ui: uiReducer
+    session: sessionReducer,
+    // Add other reducers here as your app grows
 });
 
 let enhancer;
