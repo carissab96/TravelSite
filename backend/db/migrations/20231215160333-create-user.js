@@ -42,6 +42,16 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    const schema = process.env.NODE_ENV === 'production' ? process.env.SCHEMA : '';
+    const prefix = schema ? `"${schema}".` : '';
+
+    // Drop all dependent tables first
+    await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"ReviewImages" CASCADE;`);
+    await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"SpotImages" CASCADE;`);
+    await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"Reviews" CASCADE;`);
+    await queryInterface.sequelize.query(`DROP TABLE IF EXISTS ${prefix}"Spots" CASCADE;`);
+    
+    // Finally drop Users table
     options.tableName = "Users";
     return queryInterface.dropTable(options);
   }
