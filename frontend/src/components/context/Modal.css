@@ -22,10 +22,10 @@
 #modal-content {
     position: relative;
     background-color: white;
-    padding: 2.5rem;
+    padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border: 3px solid #4CAF50;
+    border: 2px solid #4CAF50;
     max-width: 90%;
     width: 400px;
     font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
@@ -33,6 +33,7 @@
     max-height: calc(100vh - 4rem);
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 #modal-content h1 {
@@ -50,10 +51,13 @@
 
 #modal-content input {
     padding: 1rem;
-    border: 2px solid #ddd;
+    border: 2px solid #4CAF50;
     border-radius: 4px;
-    font-size: 1.2rem;
-    transition: border-color 0.3s ease;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
 }
 
 #modal-content input:focus {
@@ -69,21 +73,42 @@
     border-radius: 4px;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-#modal-content button:hover {
-    background-color: #4CAF50;
+#modal-content button:not(.disabled):hover {
+    background-color: #000080;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
+#modal-content button.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#modal-content button.disabled:hover {
+    background-color: #cccccc;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
 
 #modal-content .error-list {
     color: #d32f2f;
     list-style: none;
-    padding: 0.5rem;
+    padding: 0.8rem;
     margin: 0.5rem 0;
     background-color: #ffebee;
     border-radius: 4px;
     font-size: 0.9rem;
+    border: 1px solid #ffcdd2;
 }
     position: absolute;
     background-color: white;
