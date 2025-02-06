@@ -11,6 +11,13 @@ body {
     color: #333;
     line-height: 1.6;
     min-height: 100vh;
+    font-size: 16px;
+}
+
+@media screen and (min-width: 768px) {
+    body {
+        font-size: 18px;
+    }
 }
 
 /* Global form styles */
