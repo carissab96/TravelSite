@@ -57,15 +57,21 @@
     background-color: #cccccc;
 }
 
-.login-form .demo-button {
-    background-color: white;
+.login-form .demo-link {
+    background: none;
+    border: none;
     color: rgb(34, 34, 34);
-    border: 1px solid rgb(34, 34, 34);
-    margin-top: 16px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-top: 8px;
+    font-size: 14px;
+    width: auto;
+    align-self: center;
 }
 
-.login-form .demo-button:hover {
-    background-color: rgb(247, 247, 247);
+.login-form .demo-link:hover {
+    color: rgb(230, 30, 77);
 }
 
 .login-form button:hover:not(.disabled) {

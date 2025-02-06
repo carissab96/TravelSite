@@ -26,19 +26,20 @@ function LoginFormModal() {
         setIsValid(credential.length >= 4 && password.length >= 6);
     }, [credential, password]);
   
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
-        return dispatch(sessionActions.login({ credential, password }))
-            .then(closeModal)
-            .catch(async (res) => {
-                const data = await res.json();
-                if (data && data.errors) {
-                    setErrors({
-                        credential: "The provided credentials were invalid"
-                    });
-                }
-            });
+        try {
+            await dispatch(sessionActions.login({ credential, password }));
+            closeModal();
+        } catch (res) {
+            const data = await res.json();
+            if (data && data.errors) {
+                setErrors({
+                    credential: "The provided credentials were invalid."
+                });
+            }
+        }
     };
 
     const loginDemo = (e) => {
@@ -93,7 +94,7 @@ function LoginFormModal() {
                 <button 
                     type="button" 
                     onClick={loginDemo}
-                    className="demo-button"
+                    className="demo-link"
                 >
                     Log in as Demo User
                 </button>
