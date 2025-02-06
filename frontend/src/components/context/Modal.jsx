@@ -4,7 +4,7 @@ import "./Modal.css";
 
 const ModalContext = createContext();
 
-export function ModalProvider({ children }) {
+function ModalProvider({ children }) {
     const modalRef = useRef();
     const [modalContent, setModalContent] = useState(null);
     const [onModalClose, setOnModalClose] = useState(null);
@@ -57,4 +57,5 @@ export function useModal() {
     return useContext(ModalContext);
 }
 
+export { ModalProvider };
 export default ModalContext;
