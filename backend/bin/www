@@ -31,6 +31,9 @@ const gracefulShutdown = () => {
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
 
+// Start the server
+console.log('Starting server...');
+
 // Check the database connection before starting the app
 db.sequelize
   .authenticate()
