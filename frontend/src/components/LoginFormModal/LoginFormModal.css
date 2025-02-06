@@ -28,13 +28,33 @@
 .login-form button {
     background-color: navy;
     color: white;
-    padding: 0.8rem;
+    padding: 1rem;
     border: none;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     margin-top: 1rem;
+    width: 100%;
+}
+
+.login-form button.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.login-form button.disabled:hover {
+    background-color: #cccccc;
+}
+
+.login-form .demo-button {
+    background-color: #4CAF50;
+    margin-top: 0.8rem;
+}
+
+.login-form .demo-button:hover {
+    background-color: #45a049;
 }
 
 .login-form button:hover {
