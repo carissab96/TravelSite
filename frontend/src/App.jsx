@@ -19,7 +19,9 @@ function Layout() {
   return (
     <>
       <Navigation isLoaded={isLoaded} />
-      {isLoaded && <Outlet />}
+      <main className="main-content">
+        {isLoaded && <Outlet />}
+      </main>
     </>
   );
 }

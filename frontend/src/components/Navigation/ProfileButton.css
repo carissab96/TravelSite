@@ -5,8 +5,8 @@
 .profile-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 0.8rem;
+  padding: 0.8rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -18,13 +18,13 @@
 }
 
 .menu-icon {
-  font-size: 1.2rem;
-  color: #666;
+  font-size: 1.5rem;
+  color: white;
 }
 
 .user-icon {
-  font-size: 1.5rem;
-  color: #666;
+  font-size: 1.8rem;
+  color: white;
 }
 
 .profile-dropdown {
@@ -34,12 +34,13 @@
   background-color: white;
   border: 2px solid #4CAF50;
   border-radius: 4px;
-  padding: 0.5rem;
+  padding: 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  min-width: 200px;
+  min-width: 250px;
   z-index: 1000;
   background-color: navy;
   color: white;
+  font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
 }
 
 .profile-dropdown.hidden {
@@ -48,26 +49,58 @@
 
 .profile-dropdown li {
   padding: 0.8rem;
-  border-bottom: 1px solid #4CAF50;
   color: white;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
 
+.profile-dropdown .user-info {
+  cursor: default;
+  padding: 0.5rem 0;
+}
+
+.profile-dropdown .greeting {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.profile-dropdown .email {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.profile-dropdown .menu-divider {
+  border-top: 2px solid #4CAF50;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
 /* Style for both login/signup buttons in dropdown */
 .profile-dropdown li button {
   width: 100%;
-  padding: 0.8rem;
+  padding: 1rem;
   background: none;
   border: 2px solid #4CAF50;
   color: white;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: Fantasy, Arial, sans-serif;
+  font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
   text-align: center;
+  font-size: 1.1rem;
+}
+
+.profile-dropdown .logout-option button {
+  background-color: #dc3545;
+  border: none;
+  font-weight: bold;
+}
+
+.profile-dropdown .logout-option button:hover {
+  background-color: #c82333;
 }
 
 .profile-dropdown li button:hover {

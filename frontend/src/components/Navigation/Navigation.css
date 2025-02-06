@@ -3,17 +3,28 @@
   justify-content: space-between;
   align-items: center;
   list-style: none;
-  padding: 1.2rem 2.5rem;
+  padding: 1.2rem min(2.5rem, 5%);
   margin: 0;
   background-color: navy;
   border-bottom: 3px solid #4CAF50;
   font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
   font-size: 1.2rem;
+  width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Add margin to main content to account for fixed header */
+body {
+  margin-top: 5rem;
 }
 
 .nav-logo {
   display: flex;
   align-items: center;
+  flex-shrink: 0; /* Prevent logo from shrinking */
 }
 
 .nav-logo a {
@@ -22,6 +33,23 @@
   gap: 0.8rem;
   font-size: 1.5rem;
   font-weight: bold;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .nav-list {
+    padding: 1rem min(1.5rem, 3%);
+  }
+
+  .nav-logo a {
+    font-size: 1.3rem;
+    gap: 0.5rem;
+  }
+
+  .site-icon {
+    font-size: 1.6rem;
+  }
 }
 
 .site-icon {
@@ -52,6 +80,8 @@
   display: flex;
   gap: 1rem;
   align-items: center;
+  margin-left: auto; /* Push to right */
+  flex-shrink: 0; /* Prevent from shrinking */
 }
 
 /* Profile button styling */

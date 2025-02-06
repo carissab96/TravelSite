@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import * as sessionActions from '../../store/session';
 import { FaUserCircle } from 'react-icons/fa';
 import { FaBars } from 'react-icons/fa';
@@ -10,8 +11,10 @@ import './ProfileButton.css';
 
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
+  const menuRef = useRef();
 
   const toggleMenu = (e) => {
     e.stopPropagation(); // Prevent event from bubbling up
@@ -22,7 +25,11 @@ function ProfileButton({ user }) {
     if (!showMenu) return;
 
     const closeMenu = (e) => {
-      if (!ulRef.current?.contains(e.target)) {
+      // Allow clicks on greeting and email
+      if (e.target.classList.contains('user-info')) return;
+      
+      // Close if click is outside menu and not on menu button
+      if (!ulRef.current?.contains(e.target) && !menuRef.current?.contains(e.target)) {
         setShowMenu(false);
       }
     };
@@ -34,15 +41,18 @@ function ProfileButton({ user }) {
 
   const logout = (e) => {
     e.preventDefault();
-    dispatch(sessionActions.logout());
-    setShowMenu(false);
+    dispatch(sessionActions.logout())
+      .then(() => {
+        setShowMenu(false);
+        navigate('/');
+      });
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
   return (
     <div className="profile-button-container">
-      <button onClick={toggleMenu} className="profile-button">
+      <button onClick={toggleMenu} className="profile-button" ref={menuRef}>
         <FaBars className="menu-icon" />
         <FaUserCircle className="user-icon" />
       </button>
@@ -50,10 +60,10 @@ function ProfileButton({ user }) {
         {user ? (
           // Logged in menu items
           <>
-            <li>{user.username}</li>
-            <li>{user.firstName} {user.lastName}</li>
-            <li>{user.email}</li>
-            <li>
+            <li className="user-info greeting">Hello, {user.firstName}</li>
+            <li className="user-info email">{user.email}</li>
+            <li className="menu-divider"></li>
+            <li className="logout-option">
               <button onClick={logout}>Log Out</button>
             </li>
           </>
