@@ -1,27 +1,53 @@
-#!/usr/bin/env node;
+#!/usr/bin/env node
 // backend/bin/www
 
 // Import environment variables
 require('dotenv').config();
 
 const { port } = require('../config');
-
 const app = require('../app');
 const db = require('../db/models');
+
+let server;
+
+// Function to gracefully shutdown the server
+const gracefulShutdown = () => {
+  console.log('\nReceived shutdown signal. Closing server...');
+  if (server) {
+    server.close(() => {
+      console.log('Server closed.');
+      // Close database connection
+      db.sequelize.close().then(() => {
+        console.log('Database connection closed.');
+        process.exit(0);
+      });
+    });
+  } else {
+    process.exit(0);
+  }
+};
+
+// Handle shutdown signals
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
 
 // Check the database connection before starting the app
 db.sequelize
   .authenticate()
-  .then((async () => {
+  .then(async () => {
     console.log('Database connection success! Sequelize is ready to use...');
 
     // Sync the models with the database
     await db.sequelize.sync();
     console.log('Database synchronized');
+
     // Start listening for connections
-    app.listen(port, () => console.log(`Listening on port ${port}...`));
-  })())
+    server = app.listen(port, () => {
+      console.log(`Listening on port ${port}...`);
+    });
+  })
   .catch((err) => {
     console.log('Database connection failure.');
     console.error(err);
+    process.exit(1);
   });
