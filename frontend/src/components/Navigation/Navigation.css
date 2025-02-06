@@ -1,0 +1,75 @@
+.nav-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  padding: 1rem 2rem;
+  margin: 0;
+  background-color: navy;
+  border-bottom: 3px solid #4CAF50;
+  font-family: Fantasy, Arial, sans-serif;
+}
+
+.nav-list li {
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a, .nav-list button {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-list a:hover, .nav-list button:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.nav-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Profile button styling */
+.profile-button {
+  background: none;
+  border: 2px solid #4CAF50;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.profile-button:hover {
+  background-color: #4CAF50;
+}
+
+.profile-button .menu-icon,
+.profile-button .user-icon {
+  font-size: 1.2rem;
+  color: white;
+}
+
+/* Modal button styling */
+.modal-button {
+  background: none;
+  border: 2px solid #4CAF50;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-button:hover {
+  background-color: #4CAF50;
+}

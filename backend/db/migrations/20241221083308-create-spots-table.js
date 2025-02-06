@@ -2,8 +2,9 @@
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  
+  options.schema = process.env.SCHEMA;  // define your schema in options object
 }
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Spots", {
@@ -87,16 +88,6 @@ module.exports = {
   
    async down (queryInterface, Sequelize){
       options.tableName = "Spots";
-      const schema = process.env.NODE_ENV === 'production' ? process.env.SCHEMA : '';
-      const schemaPrefix = schema ? `${schema}.` : '';
-      
-      // Drop foreign key constraint first
-      await queryInterface.sequelize.query(`
-        ALTER TABLE ${schemaPrefix}"Spots" 
-        DROP CONSTRAINT IF EXISTS "Spots_ownerId_fkey";
-      `);
-      
-      // Then drop the table
-      await queryInterface.dropTable(options);
+      return queryInterface.dropTable(options.tableName);
     },
   };

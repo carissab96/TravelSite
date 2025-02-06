@@ -42,18 +42,8 @@ module.exports = {
         }, options);
     },
 
-    async down (queryInterface, Sequelize){
+        async down (queryInterface, Sequelize){
         options.tableName = "SpotImages";
-        const schema = process.env.NODE_ENV === 'production' ? process.env.SCHEMA : '';
-        const schemaPrefix = schema ? `${schema}.` : '';
-        
-        // Drop foreign key constraint first
-        await queryInterface.sequelize.query(`
-            ALTER TABLE ${schemaPrefix}"SpotImages" 
-            DROP CONSTRAINT IF EXISTS "SpotImages_spotId_fkey";
-        `);
-        
-        // Then drop the table
-        await queryInterface.dropTable(options);
+        return queryInterface.dropTable(options.tableName);
     },
 };

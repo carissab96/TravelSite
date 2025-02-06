@@ -4,14 +4,29 @@ const router = require('express').Router();
 
 // Middleware for logging incoming requests
 router.use((req, res, next) => {
-
+  console.log(`[API] ${req.method} ${req.url}`);
   next();
+});
+
+// CSRF restore endpoint
+router.get('/csrf/restore', (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.cookie('XSRF-TOKEN', csrfToken);
+  res.status(200).json({
+    'XSRF-Token': csrfToken
+  });
+});
+
+// Test endpoint for CSRF
+router.post('/test', (req, res) => {
+  res.json({ message: 'CSRF test successful!' });
 });
 
 const sessionRouter = require('./session.js');
 const usersRouter = require('./users.js');
 const spotsRouter = require('./spots.js');
 const reviewsRouter = require('./reviews.js');
+
 
 const { restoreUser } = require("../../utils/auth");
 
@@ -27,6 +42,7 @@ router.use('/users', usersRouter);
 router.use('/spots', spotsRouter);
 
 router.use('/reviews', reviewsRouter);
+
 
 
 // Test route
