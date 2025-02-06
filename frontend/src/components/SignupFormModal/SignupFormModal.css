@@ -39,11 +39,12 @@ h1 {
 }
 
 .signup-form input {
-    padding: 0.8rem;
+    padding: 1rem;
     border: 2px solid #ddd;
     border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .signup-form input:focus {
@@ -54,25 +55,38 @@ h1 {
 .signup-form button {
     background-color: navy;
     color: white;
-    padding: 0.8rem;
+    padding: 1rem;
     border: none;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     margin-top: 1rem;
+    width: 100%;
+    font-family: inherit;
 }
 
-.signup-form button:hover {
-    background-color: #4CAF50;
+.signup-form button.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.signup-form button.disabled:hover {
+    background-color: #cccccc;
+}
+
+.signup-form button:hover:not(.disabled) {
+    background-color: #000080;
 }
 
 .error-list {
     color: #d32f2f;
     list-style: none;
-    padding: 0.5rem;
+    padding: 0.8rem;
     margin: 0.5rem 0;
     background-color: #ffebee;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    border: 1px solid #ffcdd2;
 }
