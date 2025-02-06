@@ -15,7 +15,7 @@ const removeUser = () => ({
     type: REMOVE_USER
 });
 
-const signUpUser = () => ({
+const signupUser = () => ({
     type: SIGNUP_USER,
     payload: user
 });
@@ -50,7 +50,7 @@ export const restoreUser = () => async (dispatch) => {
     }
 };
 
-export const signup = (user) => async (dispatch) => {
+export const signUp = (user) => async (dispatch) => {
     try {
         const response = await fetchWithCsrf('/api/users', {
             method: 'POST',
@@ -115,4 +115,4 @@ const sessionReducer = (state = initialState, action) => {
     }
 };
 
-export default sessionReducer;
+export default sessionReducer; 

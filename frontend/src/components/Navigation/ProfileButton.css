@@ -1,3 +1,7 @@
+.profile-button-container {
+  position: relative;
+}
+
 .profile-button {
   display: flex;
   align-items: center;
@@ -26,14 +30,16 @@
 .profile-dropdown {
   position: absolute;
   right: 0;
-  top: 100%;
+  top: calc(100% + 5px);
   background-color: white;
-  border: 1px solid #ccc;
+  border: 2px solid #4CAF50;
   border-radius: 4px;
   padding: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   min-width: 200px;
   z-index: 1000;
+  background-color: navy;
+  color: white;
 }
 
 .profile-dropdown.hidden {
@@ -41,10 +47,42 @@
 }
 
 .profile-dropdown li {
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
-  color: #333;
+  padding: 0.8rem;
+  border-bottom: 1px solid #4CAF50;
+  color: white;
   font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Style for both login/signup buttons in dropdown */
+.profile-dropdown li button {
+  width: 100%;
+  padding: 0.8rem;
+  background: none;
+  border: 2px solid #4CAF50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: Fantasy, Arial, sans-serif;
+  text-align: center;
+}
+
+.profile-dropdown li button:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Style for user info text */
+.profile-dropdown li:not(:last-child) {
+  border-bottom: 1px solid #4CAF50;
+}
+
+/* Add some spacing between buttons */
+.profile-dropdown li + li {
+  margin-top: 0.5rem;
 }
 
 .profile-dropdown li:last-child {

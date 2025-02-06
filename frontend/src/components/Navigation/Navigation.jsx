@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
-import * as sessionActions from '../../store/session';
 import './Navigation.css';
 
 function Navigation({ isLoaded }) {
@@ -14,14 +13,7 @@ function Navigation({ isLoaded }) {
       </li>
       {isLoaded && (
         <li className="nav-right">
-          {sessionUser ? (
-            <ProfileButton user={sessionUser} />
-          ) : (
-            <>
-              <NavLink to="/login">Log In</NavLink>
-              <NavLink to="/signup">Sign Up</NavLink>
-            </>
-          )}
+          <ProfileButton user={sessionUser} />
         </li>
       )}
     </ul>

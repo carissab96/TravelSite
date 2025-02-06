@@ -3,6 +3,9 @@ import { useDispatch } from 'react-redux';
 import * as sessionActions from '../../store/session';
 import { FaUserCircle } from 'react-icons/fa';
 import { FaBars } from 'react-icons/fa';
+import OpenModalButton from '../OpenModalButton/OpenModalButton';
+import LoginFormModal from '../LoginFormModal/LoginFormModal';
+import SignupFormModal from '../SignupFormModal/SignupFormModal';
 import './ProfileButton.css';
 
 function ProfileButton({ user }) {
@@ -37,20 +40,43 @@ function ProfileButton({ user }) {
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
   return (
-    <>
+    <div className="profile-button-container">
       <button onClick={toggleMenu} className="profile-button">
         <FaBars className="menu-icon" />
         <FaUserCircle className="user-icon" />
       </button>
       <ul className={ulClassName} ref={ulRef}>
-        <li>{user.username}</li>
-        <li>{user.firstName} {user.lastName}</li>
-        <li>{user.email}</li>
-        <li>
-          <button onClick={logout}>Log Out</button>
-        </li>
+        {user ? (
+          // Logged in menu items
+          <>
+            <li>{user.username}</li>
+            <li>{user.firstName} {user.lastName}</li>
+            <li>{user.email}</li>
+            <li>
+              <button onClick={logout}>Log Out</button>
+            </li>
+          </>
+        ) : (
+          // Logged out menu items
+          <>
+            <li>
+              <OpenModalButton
+                buttonText="Log In"
+                modalComponent={<LoginFormModal />}
+                onButtonClick={() => setShowMenu(false)}
+              />
+            </li>
+            <li>
+              <OpenModalButton
+                buttonText="Sign Up"
+                modalComponent={<SignupFormModal />}
+                onButtonClick={() => setShowMenu(false)}
+              />
+            </li>
+          </>
+        )}
       </ul>
-    </>
+    </div>
   );
 }
 
