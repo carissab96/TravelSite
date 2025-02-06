@@ -8,46 +8,49 @@
 .login-form label {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    color: navy;
-    font-weight: 500;
+    gap: 8px;
+    color: rgb(34, 34, 34);
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .login-form input {
-    padding: 1rem;
-    border: 2px solid #4CAF50;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
+    padding: 12px;
+    border: 1px solid rgb(176, 176, 176);
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 20px;
+    transition: all 0.2s ease;
     width: 100%;
     box-sizing: border-box;
     background-color: white;
+    color: rgb(34, 34, 34);
 }
 
 .login-form input:focus {
-    border-color: #4CAF50;
+    border-color: rgb(0, 0, 0);
     outline: none;
 }
 
 .login-form button {
-    background-color: navy;
+    background-color: rgb(230, 30, 77);
     color: white;
-    padding: 1rem;
+    padding: 14px 24px;
     border: none;
-    border-radius: 4px;
-    font-size: 1.2rem;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
+    transition: all 0.2s ease;
     width: 100%;
+    margin-top: 16px;
     font-family: inherit;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .login-form button.disabled {
-    background-color: #cccccc;
+    background-color: rgb(235, 235, 235);
+    color: rgb(113, 113, 113);
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
 .login-form button.disabled:hover {
@@ -55,20 +58,18 @@
 }
 
 .login-form .demo-button {
-    background-color: #4CAF50;
-    margin-top: 0.8rem;
-    font-weight: 500;
-    border: 2px solid transparent;
+    background-color: white;
+    color: rgb(34, 34, 34);
+    border: 1px solid rgb(34, 34, 34);
+    margin-top: 16px;
 }
 
 .login-form .demo-button:hover {
-    background-color: #45a049;
+    background-color: rgb(247, 247, 247);
 }
 
 .login-form button:hover:not(.disabled) {
-    background-color: #000080;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: rgb(180, 30, 77);
 }
 
 .error-list {
