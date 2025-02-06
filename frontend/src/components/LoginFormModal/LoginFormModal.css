@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
 }
 
 .login-form label {
@@ -13,11 +14,14 @@
 }
 
 .login-form input {
-    padding: 0.8rem;
-    border: 2px solid #ddd;
+    padding: 1rem;
+    border: 2px solid #4CAF50;
     border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
 }
 
 .login-form input:focus {
@@ -36,6 +40,8 @@
     transition: all 0.3s ease;
     margin-top: 1rem;
     width: 100%;
+    font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .login-form button.disabled {
@@ -51,22 +57,27 @@
 .login-form .demo-button {
     background-color: #4CAF50;
     margin-top: 0.8rem;
+    font-weight: 500;
+    border: 2px solid transparent;
 }
 
 .login-form .demo-button:hover {
     background-color: #45a049;
 }
 
-.login-form button:hover {
-    background-color: #4CAF50;
+.login-form button:hover:not(.disabled) {
+    background-color: #000080;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .error-list {
     color: #d32f2f;
     list-style: none;
-    padding: 0.5rem;
+    padding: 0.8rem;
     margin: 0.5rem 0;
     background-color: #ffebee;
     border-radius: 4px;
     font-size: 0.9rem;
+    border: 1px solid #ffcdd2;
 }
