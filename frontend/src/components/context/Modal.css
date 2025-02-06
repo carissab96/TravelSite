@@ -28,7 +28,7 @@
     border: 3px solid #4CAF50;
     max-width: 90%;
     width: 400px;
-    font-family: Fantasy, Arial, sans-serif;
+    font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
     margin: 2rem;
     max-height: calc(100vh - 4rem);
     display: flex;

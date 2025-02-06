@@ -3,7 +3,7 @@ h1 {
     text-align: center;
     margin-bottom: 1.5rem;
     font-size: 2rem;
-    font-family: Fantasy, Arial, sans-serif;
+    font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
 }
 
 .signup-form {

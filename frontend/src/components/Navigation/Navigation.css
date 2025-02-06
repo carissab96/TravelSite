@@ -7,7 +7,7 @@
   margin: 0;
   background-color: navy;
   border-bottom: 3px solid #4CAF50;
-  font-family: Fantasy, Arial, sans-serif;
+  font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
 }
 
 .nav-list li {
