@@ -29,16 +29,13 @@ function LoginFormModal() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
-        try {
-            await dispatch(sessionActions.login({ credential, password }));
+        const result = await dispatch(sessionActions.login({ credential, password }));
+        if (result && result.errors) {
+            setErrors({
+                credential: "The provided credentials were invalid."
+            });
+        } else {
             closeModal();
-        } catch (res) {
-            const data = await res.json();
-            if (data && data.errors) {
-                setErrors({
-                    credential: "The provided credentials were invalid."
-                });
-            }
         }
     };
 

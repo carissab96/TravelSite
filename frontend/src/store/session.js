@@ -22,13 +22,13 @@ export const login = (credentials) => async (dispatch) => {
             body: JSON.stringify(credentials)
         });
         const data = await response.json();
-        if (data.errors) {
-            return { errors: data.errors };
+        if (!response.ok) {
+            return { errors: data.errors || { credential: 'The provided credentials were invalid.' } };
         }
         dispatch(setUser(data.user));
         return data;
     } catch (error) {
-        return { errors: ['An unexpected error occurred.'] };
+        return { errors: { credential: 'An unexpected error occurred.' } };
     }
 };
 
