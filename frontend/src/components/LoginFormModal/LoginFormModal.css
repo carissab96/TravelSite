@@ -73,12 +73,9 @@
 }
 
 .error-list {
-    color: #d32f2f;
+    color: rgb(230, 30, 77);
     list-style: none;
-    padding: 0.8rem;
-    margin: 0.5rem 0;
-    background-color: #ffebee;
-    border-radius: 4px;
+    padding: 0;
+    margin: 0;
     font-size: 0.9rem;
-    border: 1px solid #ffcdd2;
 }
