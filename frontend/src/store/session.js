@@ -25,8 +25,12 @@ export const login = (credentials) => async (dispatch) => {
         if (!response.ok) {
             return { errors: data.errors || { credential: 'The provided credentials were invalid.' } };
         }
-        dispatch(setUser(data.user));
-        return data;
+        if (data.user) {
+            dispatch(setUser(data.user));
+            return { user: data.user };
+        } else {
+            return { errors: { credential: 'The provided credentials were invalid.' } };
+        }
     } catch (error) {
         return { errors: { credential: 'An unexpected error occurred.' } };
     }

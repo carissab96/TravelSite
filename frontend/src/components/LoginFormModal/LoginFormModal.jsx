@@ -31,10 +31,8 @@ function LoginFormModal() {
         setErrors({});
         const result = await dispatch(sessionActions.login({ credential, password }));
         if (result && result.errors) {
-            setErrors({
-                credential: "The provided credentials were invalid."
-            });
-        } else {
+            setErrors(result.errors);
+        } else if (result && result.user) {
             closeModal();
         }
     };
