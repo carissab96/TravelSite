@@ -43,23 +43,32 @@ router.post(
     const { email, password, username, firstName, lastName } = req.body;
 
     try {
-      // Check if user exists first
-      const existingUser = await User.findOne({
-        where: {
-          [Op.or]: [
-            { email: email },
-            { username: username }
-          ]
-        }
+      // Check for existing email
+      const existingEmail = await User.findOne({
+        where: { email: email }
       });
 
-      if (existingUser) {
+      if (existingEmail) {
         return res.status(403).json({
           message: "User already exists",
           statusCode: 403,
           errors: {
-            email: "User with that email already exists",
-            username: "User with that username already exists"
+            email: "An account with this email already exists"
+          }
+        });
+      }
+
+      // Check for existing username
+      const existingUsername = await User.findOne({
+        where: { username: username }
+      });
+
+      if (existingUsername) {
+        return res.status(403).json({
+          message: "User already exists",
+          statusCode: 403,
+          errors: {
+            username: "This username is already taken"
           }
         });
       }
