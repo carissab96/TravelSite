@@ -1,0 +1,14 @@
+.spots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.spot-tile {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}

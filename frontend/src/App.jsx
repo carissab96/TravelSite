@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import * as sessionActions from './store/session';
 import Navigation from './components/Navigation';
+import SpotsList from './components/Spots/SpotsList/SpotsList';
+import SpotDetails from './components/Spots/SpotDetails/SpotDetails';
 
 
 
@@ -26,10 +28,6 @@ function Layout() {
   );
 }
 
-const HomePage = () => {
-  return <h1>Hello from Home Page</h1>;
-};
-
 // Create router configuration
 const router = createBrowserRouter([
   {
@@ -37,9 +35,12 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <HomePage />
+        element: <SpotsList />
       },
-
+      {
+        path: '/spots/:spotId',
+        element: <SpotDetails />
+      }
     ]
   }
 ]);
