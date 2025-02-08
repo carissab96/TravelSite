@@ -14,7 +14,7 @@
 }
 
 .profile-button:hover {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .menu-icon {
@@ -31,16 +31,16 @@
   position: absolute;
   right: 0;
   top: calc(100% + 5px);
-  background-color: white;
   border: 2px solid #4CAF50;
   border-radius: 4px;
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  min-width: 250px;
+  min-width: 280px;
+  max-width: 300px;
   z-index: 1000;
   background-color: navy;
   color: white;
-  font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
+  font-family: 'Papyrus', 'Luminari', 'Copperplate', 'fantasy';
 }
 
 .profile-dropdown.hidden {
@@ -76,6 +76,7 @@
   border-top: 2px solid #4CAF50;
   margin: 0.5rem 0;
   padding: 0;
+
 }
 
 /* Style for both login/signup buttons in dropdown */
@@ -88,7 +89,7 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Papyrus', 'Luminari', 'Copperplate', fantasy;
+  font-family: 'Papyrus', 'Luminari', 'Copperplate', 'fantasy';
   text-align: center;
   font-size: 1.1rem;
 }

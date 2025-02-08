@@ -11,7 +11,7 @@ import { ModalProvider, Modal } from './components/context/Modal';
 
 
 //call restoreCSRF() before rendering the App
-if (import.meta.env.MODE !== 'Production') {
+if (import.meta.env.MODE !== 'production') {
   restoreCSRF();
 
   window.csrfFetch = fetchWithCsrf;
