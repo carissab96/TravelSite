@@ -6,16 +6,23 @@ module.exports = (sequelize, DataTypes) => {
   class Spot extends Model {
 
     static associate(models) {
+      // User association with Owner alias
       Spot.belongsTo(models.User, {
         foreignKey: 'ownerId',
-        onDelete: 'CASCADE',
+        as: 'Owner',
+        onDelete: 'CASCADE'
       });
 
       Spot.hasMany(models.SpotImage, {
         foreignKey: 'spotId',
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       });
 
+      // Add Reviews association if not already present
+      Spot.hasMany(models.Review, {
+        foreignKey: 'spotId',
+        onDelete: 'CASCADE'
+      });
     }
   }
 
@@ -25,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'Users',
-        key: 'id',
+        key: 'id'
       },
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     },
     address: {
       type: DataTypes.STRING,
@@ -41,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         len: [1, 90],
-        is: /^[A-Z][a-zA-Z\s]*$/,
+        is: /^[A-Z][a-zA-Z\s]*$/
       }
     },
     state: {

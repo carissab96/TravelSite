@@ -1,31 +1,37 @@
-.login-form {
+.login-form-container {
+    position: relative;
+    padding: 20px;
+}
+.modal-header {
+    margin-top: 10px;
+    padding: 1px;
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    font-family: 'Papyrus', 'Luminari', 'Copperplate', 'fantasy';
-    color: navy;
+    justify-content: space-between;  
+    align-items: center;  
+    border-radius: 5px;
+    line-height: 5px;
+}
+
+.close-button {
+    position: absolute;
+    right: 10px; 
+    top: 10px;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    min-width: 20px;
+    max-width: 25px;
+   
 }
 
 .login-form label {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
     color: navy;
     font-weight: 900;
     font-size: 18px;
-}
-
-.login-form input {
-    padding: 12px;
-    border: 1px solid rgb(176, 176, 176);
-    border-radius: 8px;
-    font-size: 16px;
-    line-height: 20px;
-    transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
-    background-color: white;
-    color: navy ;
 }
 
 .login-form input:focus {
@@ -33,19 +39,27 @@
     outline: none;
 }
 
+/* Buttons */
 .login-form button {
     background-color: rgb(230, 30, 77);
     color: white;
-    padding: 14px 24px;
+    padding: 10px 24px;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
     width: 100%;
-    margin-top: 16px;
+    margin-top: 10px;
     font-family: inherit;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    line-height: 10px;
+}
+
+.login-form button:hover:not(.disabled) {
+    background-color: rgb(180, 30, 77);
 }
 
 .login-form button.disabled {
@@ -69,10 +83,7 @@
     background-color: rgb(247, 247, 247);
 }
 
-.login-form button:hover:not(.disabled) {
-    background-color: rgb(180, 30, 77);
-}
-
+/* Error Messages */
 .error-list {
     color: rgb(230, 30, 77);
     list-style: none;

@@ -1,134 +1,119 @@
-
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithCsrf } from './csrf';
 
-
-// Action Types
-const LOAD_SPOTS = 'spots/LOAD_SPOTS';
-const RECEIVE_SPOT = 'spots/RECEIVE_SPOT';
-const CREATE_SPOT = 'spots/CREATE_SPOT';
-
-// Action Creators
-const loadSpots = (spots) => ({
-    type: LOAD_SPOTS,
-    spots
-});
-
-const receiveSpot = (spot) => ({
-    type: RECEIVE_SPOT,
-    spot
-});
-
-const createSpot = (spot) => ({
-    type: CREATE_SPOT,
-    spot
-});
-
-// Thunk Action Creators
-export const fetchSpots = () => async (dispatch) => {
-    try {
+// Thunk Actions
+export const fetchSpots = createAsyncThunk(
+    'spots/fetchSpots',
+    async () => {
         const response = await fetchWithCsrf('/api/spots');
-        if (response.ok) {
-            const spots = await response.json();
-            dispatch(loadSpots(spots));
-            return spots;
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to fetch spots');
         }
-    } catch (error) {
-        return { errors: ['An error occurred while fetching spots.'] };
+        const data = await response.json();
+        return data.Spots || data;
     }
-};
+);
 
-export const fetchSpotDetails = (spotId) => async (dispatch) => {
-    try {
+export const fetchSpotDetails = createAsyncThunk(
+    'spots/fetchSpotDetails',
+    async (spotId) => {
+        if (!spotId) throw new Error('Spot ID is required');
+        
         const response = await fetchWithCsrf(`/api/spots/${spotId}`);
-        if (response.ok) {
-            const spot = await response.json();
-            dispatch(receiveSpot(spot));
-            return spot;
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to fetch spot details');
         }
-    } catch (error) {
-        return { errors: ['An error occurred while fetching spot details.'] };
+        return response.json();
     }
-};
+);
 
-export const createNewSpot = (spotData) => async (dispatch) => {
-    try {
+export const createSpot = createAsyncThunk(
+    'spots/createSpot',
+    async (spotData) => {
         const response = await fetchWithCsrf('/api/spots', {
             method: 'POST',
             body: JSON.stringify(spotData)
         });
         
-        if (response.ok) {
-            const spot = await response.json();
-            dispatch(createSpot(spot));
-            return spot;
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to create spot');
         }
-    } catch (error) {
-        return { 
-            errors: {
-                title: error.errors?.title || 'Invalid title',
-                price: error.errors?.price || 'Invalid price',
-                images: error.errors?.images || 'Invalid image URLs'
-            }
-        };
+        return response.json();
     }
-};
+);
 
 // Initial State
 const initialState = {
     allSpots: {},
     singleSpot: null,
     isLoading: false,
-    errors: null
+    error: null
 };
 
-// Reducer
-const spotsReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case LOAD_SPOTS: {
-            const allSpots = {};
-            action.spots.forEach(spot => {
-                allSpots[spot.id] = {
-                    ...spot,
-                    avgRating: spot.avgRating || 'New',
-                    previewImage: spot.previewImage || null
+// Slice
+const spotsSlice = createSlice({
+    name: 'spots',
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            // Fetch Spots
+            .addCase(fetchSpots.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchSpots.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.allSpots = {};
+                action.payload.forEach(spot => {
+                    state.allSpots[spot.id] = {
+                        ...spot,
+                        avgRating: spot.avgRating || 'New',
+                        previewImage: spot.previewImage || null
+                    };
+                });
+            })
+            .addCase(fetchSpots.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+            // Fetch Spot Details
+            .addCase(fetchSpotDetails.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchSpotDetails.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.singleSpot = {
+                    ...action.payload,
+                    avgRating: action.payload.avgStarRating || 'New',
+                    images: action.payload.SpotImages || [],
+                    owner: action.payload.Owner || {},
+                    numReviews: action.payload.numReviews || 0
                 };
+            })
+            .addCase(fetchSpotDetails.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+            // Create Spot
+            .addCase(createSpot.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(createSpot.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.allSpots[action.payload.id] = action.payload;
+                state.singleSpot = action.payload;
+            })
+            .addCase(createSpot.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
             });
-            return {
-                ...state,
-                allSpots,
-                isLoading: false,
-                errors: null
-            };
-        }
-        case RECEIVE_SPOT:
-            return {
-                ...state,
-                singleSpot: {
-                    ...action.spot,
-                    avgRating: action.spot.avgRating || 'New',
-                    images: action.spot.images || [],
-                    owner: {
-                        firstName: action.spot.Owner?.firstName,
-                        lastName: action.spot.Owner?.lastName
-                    }
-                },
-                isLoading: false,
-                errors: null
-            };
-        case CREATE_SPOT:
-            return {
-                ...state,
-                allSpots: {
-                    ...state.allSpots,
-                    [action.spot.id]: action.spot
-                },
-                singleSpot: action.spot,
-                isLoading: false,
-                errors: null
-            };
-        default:
-            return state;
     }
-};
+});
 
-export default spotsReducer;
+export default spotsSlice.reducer;

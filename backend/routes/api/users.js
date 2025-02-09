@@ -12,13 +12,28 @@ const { handleValidationErrors } = require('../../utils/validation');
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
+    .withMessage('Please provide an email.')
     .isEmail()
-    .withMessage('Please provide a valid email.'),
+    .withMessage('The provided email is invalid.')
+    .custom(async (value) => {
+      const existingUser = await User.findOne({ where: { email: value } });
+      if (existingUser) {
+        throw new Error('The provided email is already in use.');
+      }
+      return true;
+    }),
   check('username')
     .exists({ checkFalsy: true })
+    .withMessage('Please provide a username.')
     .isLength({ min: 4 })
-    .withMessage('Please provide a username with at least 4 characters.'),
-  check('username')
+    .withMessage('Please provide a username with at least 4 characters.')
+    .custom(async (value) => {
+      const existingUser = await User.findOne({ where: { username: value } });
+      if (existingUser) {
+        throw new Error('This username is already taken.');
+      }
+      return true;
+    })
     .not()
     .isEmail()
     .withMessage('Username cannot be an email.'),
@@ -43,35 +58,6 @@ router.post(
     const { email, password, username, firstName, lastName } = req.body;
 
     try {
-      // Check for existing email
-      const existingEmail = await User.findOne({
-        where: { email: email }
-      });
-
-      if (existingEmail) {
-        return res.status(403).json({
-          message: "User already exists",
-          statusCode: 403,
-          errors: {
-            email: "An account with this email already exists"
-          }
-        });
-      }
-
-      // Check for existing username
-      const existingUsername = await User.findOne({
-        where: { username: username }
-      });
-
-      if (existingUsername) {
-        return res.status(403).json({
-          message: "User already exists",
-          statusCode: 403,
-          errors: {
-            username: "This username is already taken"
-          }
-        });
-      }
 
       const hashedPassword = bcrypt.hashSync(password);
       const user = await User.create({ 

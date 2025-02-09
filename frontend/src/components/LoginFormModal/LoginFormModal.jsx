@@ -53,8 +53,19 @@ function LoginFormModal() {
     };
   
     return (
-        <>
+        <div className="login-form-container">
+            <div className="modal-header">
             <h1>Log In</h1>
+            <button 
+                type="button" 
+                className="close-button" 
+                onClick={closeModal}
+                aria-label="Close"
+            >
+                ×
+            </button>
+            </div>
+         
             <form onSubmit={handleSubmit} className="login-form">
                 <label>
                     Username or Email
@@ -71,7 +82,7 @@ function LoginFormModal() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
+                        required    
                     />
                 </label>
                 {errors.credential && (
@@ -94,7 +105,7 @@ function LoginFormModal() {
                     Log in as Demo User
                 </button>
             </form>
-        </>
+        </div>
     );
   }
   

@@ -1,9 +1,8 @@
 const express = require('express');
-const { Op } = require('sequelize'); // Import Op for query operators
+const { Op } = require('sequelize');
 const { check, validationResult } = require('express-validator');
-const { requireAuth } = require('../../utils/auth'); // Middleware for authentication
-const { Spot, SpotImage } = require('../../db/models/');
-const { User } = require('../../db/models/');
+const { requireAuth } = require('../../utils/auth');
+const { Spot, SpotImage, User, Review } = require('../../db/models/');
 
 const router = express.Router();
 
@@ -75,10 +74,10 @@ router.get('/', async (req, res) => {
     const where = {};
     
     // Add filters based on query parameters
-    if (city) where.city = { [Op.iLike]: `%${city}%` };
-    if (state) where.state = { [Op.iLike]: `%${state}%` };
-    if (country) where.country = { [Op.iLike]: `%${country}%` };
-    if (name) where.name = { [Op.iLike]: `%${name}%` };
+    if (city) where.city = { [Op.like]: `%${city}%` };
+    if (state) where.state = { [Op.like]: `%${state}%` };
+    if (country) where.country = { [Op.like]: `%${country}%` };
+    if (name) where.name = { [Op.like]: `%${name}%` };
     
     // Price range filter
     if (minPrice || maxPrice) {
@@ -147,6 +146,14 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
+    // First validate that id is a number
+    if (isNaN(parseInt(id))) {
+      return res.status(400).json({
+        message: "Spot ID must be a number",
+        statusCode: 400
+      });
+    }
+
     const spot = await Spot.findByPk(id, {
       include: [
         {
@@ -169,7 +176,16 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // Format the response to match API docs
+    // Get review stats
+    const reviews = await Review.findAndCountAll({
+      where: { spotId: id }
+    });
+
+    const avgStarRating = reviews.rows.length > 0 
+      ? reviews.rows.reduce((sum, review) => sum + review.stars, 0) / reviews.rows.length
+      : null;
+
+    // Format the response
     const response = {
       id: spot.id,
       ownerId: spot.ownerId,
@@ -184,17 +200,18 @@ router.get('/:id', async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      numReviews: 0, // You'll need to implement this
-      avgStarRating: null, // You'll need to implement this
+      numReviews: reviews.count,
+      avgStarRating,
       SpotImages: spot.SpotImages,
       Owner: spot.Owner
     };
 
     return res.json(response);
   } catch (error) {
-    return res.status(404).json({
-      message: "Spot couldn't be found",
-      statusCode: 404
+    console.error('Error fetching spot details:', error);
+    return res.status(500).json({
+      message: "An error occurred while fetching the spot",
+      statusCode: 500
     });
   }
 });

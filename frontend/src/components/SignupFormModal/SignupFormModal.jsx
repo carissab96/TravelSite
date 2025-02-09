@@ -70,8 +70,18 @@ function SignupFormModal() {
   };
 
   return (
-    <>
-      <h1>Sign Up</h1>
+    <div className="signup-form-container">
+      <div className="modal-header">
+        <h1>Sign Up</h1>
+        <button 
+        type="button" 
+        className="close-button" 
+        onClick={closeModal}
+        aria-label="Close"
+      >
+        ×
+      </button>
+      </div>
       <form onSubmit={handleSubmit} className="signup-form">
         <label>
           Email
@@ -165,7 +175,7 @@ function SignupFormModal() {
           Sign Up
         </button>
       </form>
-    </>
+    </div>
   );
 }
 

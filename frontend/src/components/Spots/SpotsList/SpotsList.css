@@ -7,8 +7,10 @@
     margin: 0 auto;
 }
 
-.spot-tile {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: navy;
+    font-family: 'Papyrus', 'Luminari', 'Copperplate', 'fantasy';
 }
