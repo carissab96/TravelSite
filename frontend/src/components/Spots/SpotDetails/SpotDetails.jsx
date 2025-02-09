@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSpotDetails } from '../../../store/spots';
 import './SpotDetails.css';
+import Reviews from '../../Reviews/Reviews';
 
 function SpotDetails() {
     const { spotId } = useParams();
@@ -11,13 +12,16 @@ function SpotDetails() {
         console.log('Current Redux state:', state);
         return state.spots.singleSpot;
     });
+
+    const reviews = useSelector(state => state.reviews);
+    console.log('Reviews:', reviews);
+
     const isLoading = useSelector(state => state.spots.isLoading);
     const error = useSelector(state => state.spots.error);
 
     useEffect(() => {
         console.log('SpotDetails useEffect - spotId:', spotId);
         if (!spotId) return;
-
         dispatch(fetchSpotDetails(parseInt(spotId, 10)));
     }, [dispatch, spotId]);
 
@@ -38,10 +42,10 @@ function SpotDetails() {
     return (
         <div className="spot-details">
             <header className="spot-header">
-                <h1>{spot.name}</h1>
-                <p className="location">
-                    {spot.city}, {spot.state}, {spot.country}
-                </p>
+                <div className="title-location">
+                    <h1>{spot.name}</h1>
+                    <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
+                </div>
             </header>
             
             <div className="images-container">
@@ -73,15 +77,18 @@ function SpotDetails() {
                     <h2>Hosted by {spot.owner.firstName} {spot.owner.lastName}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
-
+                    <Reviews spotId={spotId} />
                 <div className="callout-box">
                     <div className="price-info">
-                        <span className="price">${spot.price}</span>
-                        <span className="per-night">night</span>
+                        <span className="price">${spot.price}</span> <span className="per-night">night</span>
                     </div>
                     <div className="rating-info">
                         <span className="stars">★ {spot.avgRating === 'New' ? 'New' : Number(spot.avgRating).toFixed(1)}</span>
-                        {spot.numReviews > 0 && <span className="reviews-count">· {spot.numReviews} reviews</span>}
+                        {spot.numReviews > 0 && (
+                            <span className="reviews-count">
+                                · {spot.numReviews} {spot.numReviews === 1 ? 'review' : 'reviews'}
+                            </span>
+                        )}
                     </div>
                     <button className="reserve-button" onClick={handleReserve}>
                         Reserve

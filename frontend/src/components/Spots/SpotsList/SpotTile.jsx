@@ -9,11 +9,27 @@ function SpotTile({ spot }) {
         navigate(`/spots/${spot.id}`);
     };
 
+    const renderRating = () => {
+        // Show 'New' if avgRating is null, undefined, 0, or NaN
+        if (!spot.avgRating || spot.avgRating === 0 || isNaN(spot.avgRating)) {
+            return 'New';
+        }
+        
+        // Convert to number and format to 1 decimal place
+        const rating = Number(spot.avgRating);
+        return (
+            <>
+                <i className="fas fa-star"></i>
+                {` ${rating.toFixed(1)}`}
+            </>
+        );
+    };
+
     return (
         <div 
             className="spot-tile"
             onClick={handleClick}
-            title={spot.name} // This adds the tooltip
+            title={spot.name}
         >
             <div className="spot-image-container">
                 <img 
@@ -25,15 +41,17 @@ function SpotTile({ spot }) {
                 />
             </div>
             <div className="spot-info">
+                <div className="spot-header">
+                    <div className="spot-name">{spot.name}</div>
+                    <div className="spot-rating">
+                        {renderRating()}
+                    </div>
+                </div>
                 <div className="spot-location">
                     {spot.city}, {spot.state}
                 </div>
-                <div className="spot-rating">
-                    {spot.avgRating === 'New' ? 'New' : `★ ${Number(spot.avgRating).toFixed(1)}`}
-                </div>
                 <div className="spot-price">
-                    <span className="price">${spot.price}</span>
-                    <span className="night">night</span>
+                    <span className="price">${spot.price}</span> <span className="night">night</span>
                 </div>
             </div>
         </div>

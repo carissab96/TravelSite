@@ -1,0 +1,67 @@
+/* /frontend/src/components/Reviews/Reviews.css */
+.reviews-section {
+    padding: 24px 0;
+    border-top: 1px solid #ddd;
+}
+
+.reviews-section h2 {
+    color: navy;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.no-reviews {
+    color: darkslateblue;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.review-item {
+    padding: 16px 0;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.reviewer-info h3 {
+    color: navy;
+    font-size: 16px;
+    margin: 0;
+}
+
+.review-date {
+    color: darkslateblue;
+    font-size: 14px;
+}
+
+.review-text {
+    color: #333;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.post-review-button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: navy;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.post-review-button:hover {
+    background-color: darkslateblue;
+}   

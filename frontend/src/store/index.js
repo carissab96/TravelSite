@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import sessionReducer from './session';
 import spotsReducer from './spots';
+import reviewsReducer from './reviews';
 import logger from 'redux-logger';
 
 const middleware = (getDefaultMiddleware) => {
@@ -18,7 +19,8 @@ const middleware = (getDefaultMiddleware) => {
 const store = configureStore({
     reducer: {
         session: sessionReducer,
-        spots: spotsReducer
+        spots: spotsReducer,
+        reviews: reviewsReducer
     },
     middleware,
     devTools: import.meta.env.MODE !== 'production'

@@ -8,15 +8,23 @@
     margin-bottom: 20px;
 }
 
+.title-location {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .spot-header h1 {
     font-size: 26px;
-    color: #222;
-    margin-bottom: 10px;
+    color: navy;
+    margin: 0;
 }
 
 .location {
     font-size: 16px;
-    color: #222;
+    color: darkslateblue;
+    margin: 0;
 }
 
 .images-container {
@@ -83,38 +91,53 @@
     margin-bottom: 24px;
 }
 
-.price {
+.price-info {
     display: flex;
     align-items: baseline;
     gap: 4px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
-.amount {
-    font-size: 22px;
-    font-weight: 600;
+.price {
+    font-size: 24px;
+    font-weight: 450;
+    color: navy;
 }
 
-.night {
-    color: #222;
+.per-night {
+    color: darkslateblue;
+    font-size: 16px;
+    font-weight: 400;
 }
 
-.rating {
+.rating-info {
     display: flex;
     align-items: center;
     gap: 4px;
+    margin-bottom: 16px;
     font-size: 14px;
+    color: navy;
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.reviews-count {
+    color: darkslateblue;
 }
 
 .reserve-button {
     width: 100%;
     padding: 14px;
-    background-color: #FF385C;
-    color: white;
+    background-color: navy;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
+    color: white;
     cursor: pointer;
     transition: background-color 0.2s;
 }

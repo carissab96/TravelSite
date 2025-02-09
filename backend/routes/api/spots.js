@@ -114,15 +114,30 @@ router.get('/', async (req, res) => {
           attributes: ['url'],
           where: { preview: true },
           required: false
+        },
+        {
+          model: Review,
+          attributes: ['stars'],
+          required: false
         }
       ]
     });
 
-    // Format spots to include preview image
+    // Format spots to include preview image and average rating
     const formattedSpots = spots.map(spot => {
       const spotData = spot.toJSON();
       spotData.previewImage = spot.SpotImages?.[0]?.url || null;
+      
+      // Calculate average rating
+      if (spot.Reviews && spot.Reviews.length > 0) {
+        const totalStars = spot.Reviews.reduce((sum, review) => sum + review.stars, 0);
+        spotData.avgRating = totalStars / spot.Reviews.length;
+      } else {
+        spotData.avgRating = null;
+      }
+      
       delete spotData.SpotImages;
+      delete spotData.Reviews;
       return spotData;
     });
 
