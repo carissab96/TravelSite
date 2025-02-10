@@ -156,10 +156,162 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get current user's spots
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+      const userId = req.user.id;
+
+      const Spots = await Spot.findAll({
+          where: {
+              ownerId: userId
+          },
+          include: [
+              {
+                  model: Review,
+                  attributes: ['stars'],
+                  required: false
+              },
+              {
+                  model: SpotImage,
+                  where: { preview: true },
+                  required: false,
+                  attributes: ['url']
+              }
+          ]
+      });
+      // Format spots to include preview image and average rating
+      const formattedSpots = Spots.map(spot => {
+          const spotData = spot.toJSON();
+          spotData.previewImage = spot.SpotImages?.[0]?.url || null;
+          
+          // Calculate average rating
+          if (spot.Reviews && spot.Reviews.length > 0) {
+              const totalStars = spot.Reviews.reduce((sum, review) => sum + review.stars, 0);
+              spotData.avgRating = totalStars / spot.Reviews.length;
+          } else {
+              spotData.avgRating = null;
+          }
+          
+          delete spotData.SpotImages;
+          delete spotData.Reviews;
+          return spotData;
+      });
+      return res.status(200).json({
+          Spots: formattedSpots
+      });
+  } catch (error) {
+      console.error('Error fetching user spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }   
+});
+
+// Get current user's spots
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+      const userId = req.user.id;
+
+      const Spots = await Spot.findAll({
+          where: {
+              ownerId: userId
+          },
+          include: [
+              {
+                  model: Review,
+                  attributes: ['stars'],
+                  required: false
+              },
+              {
+                  model: SpotImage,
+                  where: { preview: true },
+                  required: false,
+                  attributes: ['url']
+              }
+          ]
+      });
+      // Format spots to include preview image and average rating
+      const formattedSpots = Spots.map(spot => {
+          const spotData = spot.toJSON();
+          spotData.previewImage = spot.SpotImages?.[0]?.url || null;
+          
+          // Calculate average rating
+          if (spot.Reviews && spot.Reviews.length > 0) {
+              const totalStars = spot.Reviews.reduce((sum, review) => sum + review.stars, 0);
+              spotData.avgRating = totalStars / spot.Reviews.length;
+          } else {
+              spotData.avgRating = null;
+          }
+          
+          delete spotData.SpotImages;
+          delete spotData.Reviews;
+          return spotData;
+      });
+      return res.status(200).json({
+          Spots: formattedSpots
+      });
+  } catch (error) {
+      console.error('Error fetching user spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }   
+});
+
+// Get current user's spots
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+      const userId = req.user.id;
+
+      const Spots = await Spot.findAll({
+          where: {
+              ownerId: userId
+          },
+          include: [
+              {
+                  model: Review,
+                  attributes: ['stars'],
+                  required: false
+              },
+              {
+                  model: SpotImage,
+                  where: { preview: true },
+                  required: false,
+                  attributes: ['url']
+              }
+          ]
+      });
+
+      const formattedSpots = Spots.map(spot => {
+          const spotData = spot.toJSON();
+          spotData.previewImage = spot.SpotImages?.[0]?.url || null;
+          
+          if (spot.Reviews && spot.Reviews.length > 0) {
+              const totalStars = spot.Reviews.reduce((sum, review) => sum + review.stars, 0);
+              spotData.avgRating = totalStars / spot.Reviews.length;
+          } else {
+              spotData.avgRating = null;
+          }
+          
+          delete spotData.SpotImages;
+          delete spotData.Reviews;
+          return spotData;
+      });
+
+      return res.status(200).json({
+          Spots: formattedSpots
+      });
+  } catch (error) {
+      console.error('Error fetching user spots:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }   
+});
+
 // Get details of a spot by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    // Skip this route if the ID is 'current'
+    if (id === 'current') {
+      return next();
+    }
 
     // First validate that id is a number
     if (isNaN(parseInt(id))) {
@@ -366,25 +518,45 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
 // Get current user's spots
 router.get('/current', requireAuth, async (req, res) => {
   try {
-      const { currentUserId } = req.user;
-
-      // Validate currentUserId
-      if (!currentUserId) {
-          return res.status(400).json({ message: 'User ID is required' });
-      }
+      const userId = req.user.id;
 
       const Spots = await Spot.findAll({
           where: {
-              ownerId: currentUserId,
+              ownerId: userId
           },
+          include: [
+              {
+                  model: Review,
+                  attributes: ['stars'],
+                  required: false
+              },
+              {
+                  model: SpotImage,
+                  where: { preview: true },
+                  required: false,
+                  attributes: ['url']
+              }
+          ]
       });
-      // Check if spots are found
-      if (Spots.length === 0) {
-          return res.status(404).json({ message: 'No spots found for this user' });
-      }
+      // Format spots to include preview image and average rating
+      const formattedSpots = Spots.map(spot => {
+          const spotData = spot.toJSON();
+          spotData.previewImage = spot.SpotImages?.[0]?.url || null;
+          
+          // Calculate average rating
+          if (spot.Reviews && spot.Reviews.length > 0) {
+              const totalStars = spot.Reviews.reduce((sum, review) => sum + review.stars, 0);
+              spotData.avgRating = totalStars / spot.Reviews.length;
+          } else {
+              spotData.avgRating = null;
+          }
+          
+          delete spotData.SpotImages;
+          delete spotData.Reviews;
+          return spotData;
+      });
       return res.status(200).json({
-          message: 'Spots fetched successfully',
-          spots: Spots,
+          Spots: formattedSpots
       });
   } catch (error) {
       console.error('Error fetching user spots:', error);

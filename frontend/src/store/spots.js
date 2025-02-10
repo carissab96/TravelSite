@@ -53,7 +53,23 @@ export const fetchUserSpots = createAsyncThunk(
             throw new Error(error.message || 'Failed to fetch user spots');
         }
         const data = await response.json();
-        return data.Spots || data;
+        return data.Spots || [];
+    }
+);
+
+export const updateSpot = createAsyncThunk(
+    'spots/updateSpot',
+    async ({ spotId, spotData }) => {
+        const response = await fetchWithCsrf(`/api/spots/${spotId}`, {
+            method: 'PUT',
+            body: JSON.stringify(spotData)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to update spot');
+        }
+        return response.json();
     }
 );
 
@@ -172,6 +188,24 @@ const spotsSlice = createSlice({
                 }
             })
             .addCase(deleteSpot.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+            // Update Spot
+            .addCase(updateSpot.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(updateSpot.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const updatedSpot = action.payload.spot;
+                state.allSpots[updatedSpot.id] = updatedSpot;
+                if (state.userSpots) {
+                    state.userSpots[updatedSpot.id] = updatedSpot;
+                }
+                state.singleSpot = updatedSpot;
+            })
+            .addCase(updateSpot.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             });
