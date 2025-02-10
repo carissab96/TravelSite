@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as sessionActions from '../../store/session';
 import { FaUserCircle } from 'react-icons/fa';
 import { FaBars } from 'react-icons/fa';
