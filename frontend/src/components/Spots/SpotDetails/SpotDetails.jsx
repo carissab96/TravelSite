@@ -88,7 +88,6 @@ function SpotDetails() {
                     <h2>Hosted by {spot.owner.firstName} {spot.owner.lastName}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
-                    <Reviews spotId={spotId} />
                 <div className="callout-box">
                     <div className="price-info">
                         <span className="price">${spot.price}</span> <span className="per-night">night</span>
@@ -106,9 +105,6 @@ function SpotDetails() {
                     </button>
                 </div>
             </div>
-        </div>
-    );
-}
 
             {/* Reviews Section */}
             <section className="reviews-section">
