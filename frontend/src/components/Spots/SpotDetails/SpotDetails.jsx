@@ -1,28 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSpotDetails } from '../../../store/spots';
+import { fetchSpotReviews } from '../../../store/reviews';
 import './SpotDetails.css';
 import Reviews from '../../Reviews/Reviews';
+import ReviewModal from '../../ReviewModal/ReviewModal';
 
 function SpotDetails() {
     const { spotId } = useParams();
     const dispatch = useDispatch();
-    const spot = useSelector(state => {
-        console.log('Current Redux state:', state);
-        return state.spots.singleSpot;
-    });
-
-    const reviews = useSelector(state => state.reviews);
-    console.log('Reviews:', reviews);
-
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    
+    const spot = useSelector(state => state.spots.singleSpot);
+    const reviews = useSelector(state => state.reviews.spot.items);
     const isLoading = useSelector(state => state.spots.isLoading);
     const error = useSelector(state => state.spots.error);
+    const user = useSelector(state => state.session.user);
+
+    // Check if current user is the owner
+    const isOwner = user && spot && user.id === spot.ownerId;
+    
+    // Check if current user has already reviewed
+    const hasReviewed = user && reviews.some(review => review.userId === user.id);
 
     useEffect(() => {
-        console.log('SpotDetails useEffect - spotId:', spotId);
         if (!spotId) return;
         dispatch(fetchSpotDetails(parseInt(spotId, 10)));
+        dispatch(fetchSpotReviews(parseInt(spotId, 10)));
     }, [dispatch, spotId]);
 
     console.log('Component render - spot:', spot, 'isLoading:', isLoading, 'error:', error);
@@ -37,6 +42,12 @@ function SpotDetails() {
 
     const handleReserve = () => {
         window.alert('Feature coming soon');
+    };
+
+    const handleReviewSuccess = () => {
+        // Refresh reviews after a new review is posted
+        dispatch(fetchSpotReviews(parseInt(spotId, 10)));
+        dispatch(fetchSpotDetails(parseInt(spotId, 10))); // To update avg rating
     };
 
     return (
@@ -95,6 +106,36 @@ function SpotDetails() {
                     </button>
                 </div>
             </div>
+        </div>
+    );
+}
+
+            {/* Reviews Section */}
+            <section className="reviews-section">
+                <div className="reviews-header">
+                    <h2>★ {spot.avgStarRating?.toFixed(1) || 'New'} · {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}</h2>
+                    {user && !isOwner && !hasReviewed && (
+                        <button 
+                            onClick={() => setShowReviewModal(true)}
+                            className="post-review-button"
+                        >
+                            Post Your Review
+                        </button>
+                    )}
+                </div>
+                
+                {/* Review Modal */}
+                {showReviewModal && (
+                    <ReviewModal 
+                        spotId={parseInt(spotId, 10)}
+                        onClose={() => setShowReviewModal(false)}
+                        onSuccess={handleReviewSuccess}
+                    />
+                )}
+
+                {/* Reviews List */}
+                <Reviews spotId={parseInt(spotId, 10)} />
+            </section>
         </div>
     );
 }

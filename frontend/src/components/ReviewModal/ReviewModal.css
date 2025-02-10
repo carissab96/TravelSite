@@ -1,0 +1,103 @@
+.review-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.review-modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.review-modal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+.review-modal textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    resize: vertical;
+}
+
+.stars-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 5px;
+}
+
+.star {
+    font-size: 24px;
+    cursor: pointer;
+    color: #ccc;
+    transition: color 0.2s;
+}
+
+.star.filled {
+    color: #ffd700;
+}
+
+.stars-label {
+    margin-left: 10px;
+    color: #666;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff385c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.submit-button:not(:disabled):hover {
+    background-color: #e31c5f;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-button:hover {
+    color: #222;
+}
+
+.error {
+    color: #ff385c;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+}

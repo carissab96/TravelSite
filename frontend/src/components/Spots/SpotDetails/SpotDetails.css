@@ -4,6 +4,37 @@
     padding: 20px;
 }
 
+.reviews-section {
+    margin-top: 40px;
+}
+
+.reviews-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.reviews-header h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.post-review-button {
+    padding: 10px 20px;
+    background-color: #ff385c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.post-review-button:hover {
+    background-color: #e31c5f;
+}
+
 .spot-header {
     margin-bottom: 20px;
 }
