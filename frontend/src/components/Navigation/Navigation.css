@@ -84,6 +84,27 @@ body {
   flex-shrink: 0; /* Prevent from shrinking */
 }
 
+.create-spot-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #00635D;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.create-spot-button:hover {
+  background-color: #004c49;
+}
+
+.create-spot-button svg {
+  font-size: 0.9em;
+}
+
 /* Profile button styling */
 .profile-button {
   background: none;
@@ -121,4 +142,31 @@ body {
 
 .modal-button:hover {
   background-color: #4CAF50;
+}
+.manage-spots-button {
+  padding: 8px 16px;
+  margin-right: 16px;
+  text-decoration: none;
+  color: #001f3f;
+  font-family: Fantasy;
+  transition: color 0.2s;
+}
+
+.manage-spots-button:hover {
+  color: #2ecc40;
+}
+
+.create-link {
+  text-decoration: none;
+  color: #001f3f;
+  margin-right: 16px;
+  font-family: Fantasy;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
+}
+
+.create-link:hover {
+  color: #2ecc40;
 }

@@ -1,0 +1,140 @@
+.create-spot-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.create-spot-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: #222;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    color: #222;
+}
+
+.form-section p {
+    color: #717171;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #00635D;
+    box-shadow: 0 0 0 1px #00635D;
+}
+
+.city-state {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+}
+
+.lat-lng {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.price {
+    position: relative;
+}
+
+.price .dollar-sign {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.price input {
+    padding-left: 1.5rem;
+}
+
+.photos input {
+    margin-bottom: 1rem;
+}
+
+.error {
+    color: #ff385c;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.submit-error {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background-color: #fff3f3;
+    border: 1px solid #ffccd3;
+    border-radius: 4px;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: #00635D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #004c49;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .create-spot-container {
+        padding: 1rem;
+    }
+
+    .city-state,
+    .lat-lng {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
