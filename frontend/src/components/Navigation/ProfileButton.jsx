@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import * as sessionActions from '../../store/session';
 import { FaUserCircle } from 'react-icons/fa';
 import { FaBars } from 'react-icons/fa';
@@ -63,6 +63,17 @@ function ProfileButton({ user }) {
             <li className="user-info greeting">Hello, {user.firstName}</li>
             <li className="user-info email">{user.email}</li>
             <li className="menu-divider"></li>
+            <li>
+            <button 
+                onClick={() => {
+                navigate('/spots/current');
+                setShowMenu(false);  // Close the menu after clicking
+              }}
+              className="menu-button"
+                >
+                  Manage Spots
+            </button>
+            </li>
             <li className="logout-option">
               <button onClick={logout}>Log Out</button>
             </li>

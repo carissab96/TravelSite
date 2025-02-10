@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { FaGlobeAmericas } from 'react-icons/fa';
+import { FaGlobeAmericas, FaPlus } from 'react-icons/fa';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
 
@@ -17,6 +17,11 @@ function Navigation({ isLoaded }) {
       </li>
       {isLoaded && (
         <li className="nav-right">
+          {sessionUser && (
+            <NavLink to="/spots/new" className="create-link">
+              <FaPlus /> Create a New Spot
+            </NavLink>
+          )}
           <ProfileButton user={sessionUser} />
         </li>
       )}

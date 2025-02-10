@@ -44,13 +44,39 @@ export const createSpot = createAsyncThunk(
         return response.json();
     }
 );
+export const fetchUserSpots = createAsyncThunk(
+    'spots/fetchUserSpots',
+    async () => {
+        const response = await fetchWithCsrf('/api/spots/current');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to fetch user spots');
+        }
+        const data = await response.json();
+        return data.Spots || data;
+    }
+);
 
+export const deleteSpot = createAsyncThunk(
+    'spots/deleteSpot',
+    async (spotId) => {
+        const response = await fetchWithCsrf(`/api/spots/${spotId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to delete spot');
+        }
+        return spotId;
+    }
+);
 // Initial State
 const initialState = {
     allSpots: {},
     singleSpot: null,
     isLoading: false,
-    error: null
+    error: null,
+    userSpots: null
 };
 
 // Slice
@@ -110,6 +136,42 @@ const spotsSlice = createSlice({
                 state.singleSpot = action.payload;
             })
             .addCase(createSpot.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+            // Fetch User Spots
+            .addCase(fetchUserSpots.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchUserSpots.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.userSpots = {};
+                action.payload.forEach(spot => {
+                    state.userSpots[spot.id] = {
+                        ...spot,
+                        avgRating: spot.avgRating || 'New',
+                        previewImage: spot.previewImage || null
+                    };
+                });
+            })
+            .addCase(fetchUserSpots.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+            // Delete Spot
+            .addCase(deleteSpot.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(deleteSpot.fulfilled, (state, action) => {
+                state.isLoading = false;
+                delete state.allSpots[action.payload];
+                if (state.userSpots) {
+                    delete state.userSpots[action.payload];
+                }
+            })
+            .addCase(deleteSpot.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             });
