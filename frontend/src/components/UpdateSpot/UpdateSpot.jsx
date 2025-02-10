@@ -206,7 +206,7 @@ const UpdateSpot = () => {
 
                 <section className="title-section">
                     <h2>Create a title for your spot</h2>
-                    <p>Catch guests`&apos;` attention with a spot title that highlights what makes your place special.</p>
+                    <p>Catch guests&apos; attention with a spot title that highlights what makes your place special.</p>
                     
                     <div className="form-group">
                         <input

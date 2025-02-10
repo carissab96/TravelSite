@@ -52,12 +52,13 @@ function SpotDetails() {
 
     return (
         <div className="spot-details">
-            <header className="spot-header">
-                <div className="title-location">
-                    <h1>{spot.name}</h1>
-                    <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
-                </div>
-            </header>
+            <div className="spot-details-content">
+                <header className="spot-header">
+                    <div className="title-location">
+                        <h1>{spot.name}</h1>
+                        <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
+                    </div>
+                </header>
             
             <div className="images-container">
                 <div className="main-image">
@@ -132,6 +133,7 @@ function SpotDetails() {
                 {/* Reviews List */}
                 <Reviews spotId={parseInt(spotId, 10)} />
             </section>
+            </div>
         </div>
     );
 }
