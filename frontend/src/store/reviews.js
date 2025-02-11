@@ -45,6 +45,26 @@ export const createReview = createAsyncThunk(
     }
 );
 
+// Thunk action to delete a review
+export const deleteReview = createAsyncThunk(
+    'reviews/deleteReview',
+    async (reviewId) => {
+        try {
+            const response = await fetchWithCsrf(`/api/reviews/${reviewId}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to delete review');
+            }
+            return reviewId; // Return the ID of the deleted review
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            throw error;
+        }
+    }
+);
+
 const reviewsSlice = createSlice({
     name: 'reviews',
     initialState: {
@@ -85,6 +105,19 @@ const reviewsSlice = createSlice({
             // Handle createReview
             .addCase(createReview.fulfilled, (state, action) => {
                 state.spot.items.unshift(action.payload); // Add new review at the beginning
+            })
+            // Handle deleteReview
+            .addCase(deleteReview.pending, (state) => {
+                state.spot.loading = true;
+                state.spot.error = null;
+            })
+            .addCase(deleteReview.fulfilled, (state, action) => {
+                state.spot.loading = false;
+                state.spot.items = state.spot.items.filter(review => review.id !== action.payload);
+            })
+            .addCase(deleteReview.rejected, (state, action) => {
+                state.spot.loading = false;
+                state.spot.error = action.error.message;
             });
     }
 });

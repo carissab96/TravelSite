@@ -1,7 +1,7 @@
 // /frontend/src/components/Reviews/Reviews.jsx
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchSpotReviews } from '../../store/reviews';
+import { fetchSpotReviews, deleteReview } from '../../store/reviews';
 import './Reviews.css';
 
 function Reviews({ spotId }) {
@@ -19,6 +19,13 @@ function Reviews({ spotId }) {
             dispatch(fetchSpotReviews(spotId));
         }
     }, [dispatch, spotId]);
+
+    const handleDeleteReview = async (reviewId) => {
+        if (window.confirm('Are you sure you want to delete this review?')) {
+            await dispatch(deleteReview(reviewId));
+            dispatch(fetchSpotReviews(spotId));
+        }
+    };
 
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
@@ -48,12 +55,17 @@ function Reviews({ spotId }) {
                             <span className="review-date">{formatDate(review.createdAt)}</span>
                         </div>
                         <p className="review-text">{review.comment}</p>
+                        {currentUser && currentUser.id === review.userId && (
+                            <button 
+                                onClick={() => handleDeleteReview(review.id)}
+                                className="delete-review-button"
+                            >
+                                Delete Review
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
-            {canPostReview && (
-                <button className="post-review-button">Post Your Review</button>
-            )}
         </div>
     );
 }

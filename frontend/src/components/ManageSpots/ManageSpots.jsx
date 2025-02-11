@@ -56,7 +56,7 @@ const ManageSpots = () => {
                             <p className="price"><span>${spot.price}</span> night</p>
                             <div className="spot-rating">
                                 <i className="fas fa-star"></i>
-                                <span>{spot.avgRating ? Number(spot.avgRating).toFixed(1) : 'New'}</span>
+                                <span>{spot.avgRating && spot.avgRating !== 'NaN' ? Number(spot.avgRating).toFixed(1) : 'New'}</span>
                             </div>
                         </div>
                         <div className="spot-actions">

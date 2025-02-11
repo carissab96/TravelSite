@@ -18,7 +18,7 @@ const ReviewModal = ({ spotId, onClose, onSuccess }) => {
             await dispatch(createReview({
                 spotId,
                 review: {
-                    review,
+                    comment: review,
                     stars
                 }
             })).unwrap();
