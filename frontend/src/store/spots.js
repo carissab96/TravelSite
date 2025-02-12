@@ -83,28 +83,42 @@ export const createSpot = createAsyncThunk(
             }
 
             // Then, add images one by one
-            const imagePromises = spotData.images
+            const validImages = spotData.images
                 .filter(image => image && image.url && image.url.trim())
-                .map(async (image) => {
-                    const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: image.url.trim(),
-                            preview: image.preview
-                        })
-                    });
+                .map(image => ({
+                    url: image.url.trim(),
+                    preview: !!image.preview
+                }));
 
-                    if (!imageResponse.ok) {
-                        const error = await imageResponse.json();
-                        console.error('Failed to add image:', error);
-                        // Continue with other images even if one fails
+            if (validImages.length > 0) {
+                const imagePromises = validImages.map(async (image) => {
+                    try {
+                        const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+                            method: 'POST',
+                            body: JSON.stringify(image)
+                        });
+
+                        if (!imageResponse.ok) {
+                            const error = await imageResponse.json();
+                            console.error('Failed to add image:', error);
+                            return null;
+                        }
+
+                        return imageResponse.json();
+                    } catch (error) {
+                        console.error('Error uploading image:', error);
                         return null;
                     }
-
-                    return imageResponse.json();
                 });
 
-            await Promise.all(imagePromises);
+                // Wait for all image uploads to complete
+                const results = await Promise.all(imagePromises);
+                
+                // Check if at least the preview image was uploaded
+                if (!results.some(r => r && r.preview)) {
+                    console.warn('No preview image was successfully uploaded');
+                }
+            }
 
             // Return the created spot
             return spot;
@@ -131,17 +145,50 @@ export const fetchUserSpots = createAsyncThunk(
 
 export const updateSpot = createAsyncThunk(
     'spots/updateSpot',
-    async ({ spotId, spotData }) => {
-        const response = await fetchWithCsrf(`/api/spots/${spotId}`, {
-            method: 'PUT',
-            body: JSON.stringify(spotData)
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update spot');
+    async ({ spotId, spotData }, { rejectWithValue }) => {
+        try {
+            // Clean up the data
+            const updateBody = {
+                address: spotData.address?.trim(),
+                city: spotData.city?.trim(),
+                state: spotData.state?.trim(),
+                country: spotData.country?.trim(),
+                name: spotData.name?.trim(),
+                description: spotData.description?.trim(),
+                price: parseFloat(spotData.price)
+            };
+
+            // Handle lat/lng
+            if (spotData.lat && spotData.lat.trim() !== '') {
+                const lat = parseFloat(spotData.lat);
+                if (!isNaN(lat) && lat >= -90 && lat <= 90) {
+                    updateBody.lat = lat;
+                }
+            }
+            if (spotData.lng && spotData.lng.trim() !== '') {
+                const lng = parseFloat(spotData.lng);
+                if (!isNaN(lng) && lng >= -180 && lng <= 180) {
+                    updateBody.lng = lng;
+                }
+            }
+
+            const response = await fetchWithCsrf(`/api/spots/${spotId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateBody)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                return rejectWithValue(error);
+            }
+
+            const updatedSpot = await response.json();
+            return updatedSpot;
+        } catch (error) {
+            return rejectWithValue({
+                message: error.message || 'Failed to update spot'
+            });
         }
-        return response.json();
     }
 );
 
