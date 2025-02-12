@@ -50,19 +50,24 @@ export const createSpot = createAsyncThunk(
                 return rejectWithValue({ message: 'Price must be a positive number' });
             }
 
+            // Clean up the data for submission
+            const spotBody = {
+                address: spotData.address.trim(),
+                city: spotData.city.trim(),
+                state: spotData.state.trim(),
+                country: spotData.country.trim(),
+                name: spotData.name.trim(),
+                description: spotData.description.trim(),
+                price
+            };
+
+            // Only include lat/lng if they are valid numbers
+            if (lat !== null) spotBody.lat = lat;
+            if (lng !== null) spotBody.lng = lng;
+
             const spotResponse = await fetchWithCsrf('/api/spots', {
                 method: 'POST',
-                body: JSON.stringify({
-                    address: spotData.address.trim(),
-                    city: spotData.city.trim(),
-                    state: spotData.state.trim(),
-                    country: spotData.country.trim(),
-                    lat,
-                    lng,
-                    name: spotData.name.trim(),
-                    description: spotData.description.trim(),
-                    price
-                })
+                body: JSON.stringify(spotBody)
             });
 
             if (!spotResponse.ok) {
