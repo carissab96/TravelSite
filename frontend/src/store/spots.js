@@ -24,7 +24,14 @@ export const fetchSpotDetails = createAsyncThunk(
             const error = await response.json();
             throw new Error(error.message || 'Failed to fetch spot details');
         }
-        return response.json();
+        const data = await response.json();
+        
+        // Ensure spot has an images array
+        return {
+            ...data,
+            images: data.SpotImages || [],
+            SpotImages: undefined // Remove the old property
+        };
     }
 );
 

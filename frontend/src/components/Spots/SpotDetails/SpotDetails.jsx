@@ -84,7 +84,7 @@ function SpotDetails() {
             <div className="images-container">
                 <div className="main-image">
                     <img 
-                        src={spot.images[0]?.url || 'https://placehold.co/600x400?text=No+Image'} 
+                        src={spot.images?.[0]?.url || 'https://placehold.co/600x400?text=No+Image'} 
                         alt={spot.name}
                         onError={(e) => {
                             e.target.src = 'https://placehold.co/600x400?text=No+Image';
@@ -92,10 +92,10 @@ function SpotDetails() {
                     />
                 </div>
                 <div className="small-images">
-                    {spot.images.slice(1, 5).map((image, index) => (
+                    {(spot.images || []).slice(1, 5).map((image, index) => (
                         <img 
                             key={index}
-                            src={image.url}
+                            src={image.url || 'https://placehold.co/600x400?text=No+Image'}
                             alt={`${spot.name} view ${index + 2}`}
                             onError={(e) => {
                                 e.target.src = 'https://placehold.co/600x400?text=No+Image';
