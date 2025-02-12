@@ -178,10 +178,20 @@ function CreateSpotForm() {
             if (error.errors) {
                 // Backend validation errors
                 const validationErrors = {};
-                Object.entries(error.errors).forEach(([field, fieldError]) => {
-                    validationErrors[field] = fieldError.msg || fieldError.message || fieldError;
+                error.errors.forEach((err) => {
+                    if (err.field && err.message) {
+                        validationErrors[err.field] = err.message;
+                    }
                 });
-                setErrors(validationErrors);
+                // If we have field-specific errors, set them
+                if (Object.keys(validationErrors).length > 0) {
+                    setErrors(validationErrors);
+                } else {
+                    // Fallback to showing error at the top
+                    setErrors({
+                        submit: error.message || 'Validation failed. Please check your inputs.'
+                    });
+                }
             } else if (error.message) {
                 // Specific error message
                 setErrors({
