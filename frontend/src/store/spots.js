@@ -76,10 +76,15 @@ export const createSpot = createAsyncThunk(
             }
 
             const spotResult = await spotResponse.json();
-            const spot = spotResult.spot || spotResult; // Handle both response formats
-
+            
+            // The backend sends { message, spot: {...} }
+            const spot = spotResult.spot;
+            
             if (!spot || !spot.id) {
-                return rejectWithValue({ message: 'Invalid spot data received from server' });
+                console.error('Invalid spot data:', spotResult);
+                return rejectWithValue({ 
+                    message: 'Invalid spot data received from server. Expected spot object with ID.'
+                });
             }
 
             // Then, add images one by one
