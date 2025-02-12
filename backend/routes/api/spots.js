@@ -390,11 +390,21 @@ router.post('/', requireAuth, [
   check('city').notEmpty().withMessage('City is required'),
   check('state').notEmpty().withMessage('State is required'),
   check('country').notEmpty().withMessage('Country is required'),
-  check('lat').isFloat({ min: -90, max: 90 }).withMessage('Latitude must be within -90 and 90'),
-  check('lng').isFloat({ min: -180, max: 180 }).withMessage('Longitude must be within -180 and 180'),
-  check('name').isLength({ max: 50 }).withMessage('Name must be less than 50 characters'),
+  check('lat')
+    .if((value) => value !== null && value !== '')
+    .isFloat({ min: -90, max: 90 })
+    .withMessage('Latitude must be within -90 and 90'),
+  check('lng')
+    .if((value) => value !== null && value !== '')
+    .isFloat({ min: -180, max: 180 })
+    .withMessage('Longitude must be within -180 and 180'),
+  check('name')
+    .notEmpty().withMessage('Name is required')
+    .isLength({ max: 50 }).withMessage('Name must be less than 50 characters'),
   check('description').notEmpty().withMessage('Description is required'),
-  check('price').isFloat({ gt: 0 }).withMessage('Price per day must be a positive number')
+  check('price')
+    .notEmpty().withMessage('Price is required')
+    .isFloat({ gt: 0 }).withMessage('Price per day must be a positive number')
 ], async (req, res) => {
   if (!req.user) {
     console.log('User not authenticated');

@@ -32,53 +32,69 @@ export const fetchSpotDetails = createAsyncThunk(
 export const createSpot = createAsyncThunk(
     'spots/createSpot',
     async (spotData) => {
-        // First, create the spot
-        const spotResponse = await fetchWithCsrf('/api/spots', {
-            method: 'POST',
-            body: JSON.stringify({
-                address: spotData.address,
-                city: spotData.city,
-                state: spotData.state,
-                country: spotData.country,
-                lat: spotData.lat,
-                lng: spotData.lng,
-                name: spotData.name,
-                description: spotData.description,
-                price: spotData.price
-            })
-        });
+        try {
+            // First, create the spot
+            // Clean up lat/lng - convert empty strings to null
+            const lat = spotData.lat ? parseFloat(spotData.lat) : null;
+            const lng = spotData.lng ? parseFloat(spotData.lng) : null;
 
-        if (!spotResponse.ok) {
-            const error = await spotResponse.json();
-            throw new Error(error.message || 'Failed to create spot');
-        }
-
-        const spot = await spotResponse.json();
-
-        // Then, add images one by one
-        const imagePromises = spotData.images.map(async (image) => {
-            const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+            const spotResponse = await fetchWithCsrf('/api/spots', {
                 method: 'POST',
                 body: JSON.stringify({
-                    url: image.url,
-                    preview: image.preview
+                    address: spotData.address,
+                    city: spotData.city,
+                    state: spotData.state,
+                    country: spotData.country,
+                    lat: lat,
+                    lng: lng,
+                    name: spotData.name,
+                    description: spotData.description,
+                    price: parseFloat(spotData.price)
                 })
             });
 
-            if (!imageResponse.ok) {
-                const error = await imageResponse.json();
-                console.error('Failed to add image:', error);
-                // Continue with other images even if one fails
-                return null;
+            if (!spotResponse.ok) {
+                const error = await spotResponse.json();
+                throw new Error(error.message || error.errors?.[0]?.message || 'Failed to create spot');
             }
 
-            return imageResponse.json();
-        });
+            const spotResult = await spotResponse.json();
+            const spot = spotResult.spot; // Extract spot from response
 
-        await Promise.all(imagePromises);
+            if (!spot || !spot.id) {
+                throw new Error('Invalid spot data received from server');
+            }
 
-        // Return the created spot
-        return spot;
+            // Then, add images one by one
+            const imagePromises = spotData.images.map(async (image) => {
+                if (!image.url) return null;
+
+                const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        url: image.url,
+                        preview: image.preview
+                    })
+                });
+
+                if (!imageResponse.ok) {
+                    const error = await imageResponse.json();
+                    console.error('Failed to add image:', error);
+                    // Continue with other images even if one fails
+                    return null;
+                }
+
+                return imageResponse.json();
+            });
+
+            await Promise.all(imagePromises);
+
+            // Return the created spot
+            return spot;
+        } catch (error) {
+            console.error('Error in createSpot:', error);
+            throw error;
+        }
     }
 );
 export const fetchUserSpots = createAsyncThunk(

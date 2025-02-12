@@ -68,6 +68,22 @@ function CreateSpotForm() {
             }
         });
 
+        // Latitude validation (optional)
+        if (formData.lat && formData.lat.trim() !== '') {
+            const lat = parseFloat(formData.lat);
+            if (isNaN(lat) || lat < -90 || lat > 90) {
+                newErrors.lat = "Latitude must be between -90 and 90";
+            }
+        }
+
+        // Longitude validation (optional)
+        if (formData.lng && formData.lng.trim() !== '') {
+            const lng = parseFloat(formData.lng);
+            if (isNaN(lng) || lng < -180 || lng > 180) {
+                newErrors.lng = "Longitude must be between -180 and 180";
+            }
+        }
+
         return newErrors;
     };
 
@@ -106,34 +122,43 @@ function CreateSpotForm() {
         try {
             // Format data for API
             const spotData = {
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                country: formData.country,
-                lat: formData.lat || null,
-                lng: formData.lng || null,
-                name: formData.name,
-                description: formData.description,
-                price: Number(formData.price),
+                address: formData.address.trim(),
+                city: formData.city.trim(),
+                state: formData.state.trim(),
+                country: formData.country.trim(),
+                lat: formData.lat ? parseFloat(formData.lat) : null,
+                lng: formData.lng ? parseFloat(formData.lng) : null,
+                name: formData.name.trim(),
+                description: formData.description.trim(),
+                price: parseFloat(formData.price),
                 images: [
-                    { url: formData.previewImage, preview: true },
+                    { url: formData.previewImage.trim(), preview: true },
                     ...[formData.image1, formData.image2, formData.image3, formData.image4]
-                        .filter(url => url)
-                        .map(url => ({ url, preview: false }))
+                        .filter(url => url && url.trim())
+                        .map(url => ({ url: url.trim(), preview: false }))
                 ]
             };
 
-            const result = await dispatch(createSpot(spotData));
-            
-            if (result.error) {
-                throw new Error(result.error.message || 'Failed to create spot');
-            }
-            
-            navigate(`/spots/${result.payload.id}`);
+            const result = await dispatch(createSpot(spotData)).unwrap();
+            navigate(`/spots/${result.id}`);
         } catch (error) {
             console.error('Error creating spot:', error);
+            let errorMessage = "An error occurred while creating the spot. Please try again.";
+            
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error.errors) {
+                // Handle validation errors
+                const validationErrors = {};
+                Object.entries(error.errors).forEach(([field, message]) => {
+                    validationErrors[field] = message;
+                });
+                setErrors(validationErrors);
+                return;
+            }
+            
             setErrors({
-                submit: error.message || "An error occurred while creating the spot. Please try again."
+                submit: errorMessage
             });
             window.scrollTo(0, 0); // Scroll to top to show error
         } finally {
