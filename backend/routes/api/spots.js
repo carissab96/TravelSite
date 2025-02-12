@@ -438,10 +438,8 @@ router.post('/', requireAuth, [
       updatedAt: new Date(),
     });
 
-    return res.status(201).json({
-      message: 'Spot created successfully',
-      spot: newSpot,
-    });
+    // Return just the spot data without nesting
+    return res.status(201).json(newSpot);
   } catch (error) {
     console.error('Error creating spot:', error);
     if (error.name === 'SequelizeValidationError') {

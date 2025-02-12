@@ -75,15 +75,19 @@ export const createSpot = createAsyncThunk(
                 return rejectWithValue(errorData);
             }
 
-            const spotResult = await spotResponse.json();
+            if (!spotResponse.ok) {
+                const errorData = await spotResponse.json();
+                console.error('Spot creation failed:', errorData);
+                return rejectWithValue(errorData);
+            }
+
+            const spot = await spotResponse.json();
+            console.log('Spot creation response:', spot); // Debug log
             
-            // The backend sends { message, spot: {...} }
-            const spot = spotResult.spot;
-            
-            if (!spot || !spot.id) {
-                console.error('Invalid spot data:', spotResult);
+            if (!spot || typeof spot.id !== 'number') {
+                console.error('Invalid spot data:', spot);
                 return rejectWithValue({ 
-                    message: 'Invalid spot data received from server. Expected spot object with ID.'
+                    message: 'Invalid spot data received from server. Expected spot object with numeric ID.'
                 });
             }
 
@@ -95,9 +99,13 @@ export const createSpot = createAsyncThunk(
                     preview: !!image.preview
                 }));
 
+            console.log('Processing images for spot ID:', spot.id); // Debug log
+
             if (validImages.length > 0) {
                 const imagePromises = validImages.map(async (image) => {
                     try {
+                        console.log(`Uploading image to spot ${spot.id}:`, image); // Debug log
+                        
                         const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
                             method: 'POST',
                             body: JSON.stringify(image)
@@ -105,23 +113,31 @@ export const createSpot = createAsyncThunk(
 
                         if (!imageResponse.ok) {
                             const error = await imageResponse.json();
-                            console.error('Failed to add image:', error);
-                            return null;
+                            console.error(`Failed to add image to spot ${spot.id}:`, error);
+                            throw error; // Throw error to be caught in catch block
                         }
 
-                        return imageResponse.json();
+                        const imageResult = await imageResponse.json();
+                        console.log(`Successfully uploaded image to spot ${spot.id}:`, imageResult);
+                        return imageResult;
                     } catch (error) {
-                        console.error('Error uploading image:', error);
-                        return null;
+                        console.error(`Error uploading image to spot ${spot.id}:`, error);
+                        throw error; // Re-throw to be caught by Promise.all
                     }
                 });
 
-                // Wait for all image uploads to complete
-                const results = await Promise.all(imagePromises);
-                
-                // Check if at least the preview image was uploaded
-                if (!results.some(r => r && r.preview)) {
-                    console.warn('No preview image was successfully uploaded');
+                try {
+                    // Wait for all image uploads to complete
+                    const results = await Promise.all(imagePromises);
+                    console.log(`All images uploaded for spot ${spot.id}:`, results);
+                    
+                    // Check if at least the preview image was uploaded
+                    if (!results.some(r => r && r.preview)) {
+                        console.warn(`No preview image was successfully uploaded for spot ${spot.id}`);
+                    }
+                } catch (error) {
+                    console.error(`Failed to upload some images for spot ${spot.id}:`, error);
+                    // Don't reject here - we still created the spot successfully
                 }
             }
 
