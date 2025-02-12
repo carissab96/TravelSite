@@ -101,6 +101,7 @@ function CreateSpotForm() {
         }
 
         setIsSubmitting(true);
+        setErrors({});
         
         try {
             // Format data for API
@@ -122,12 +123,19 @@ function CreateSpotForm() {
                 ]
             };
 
-            const newSpot = await dispatch(createSpot(spotData));
-            navigate(`/spots/${newSpot.id}`);
+            const result = await dispatch(createSpot(spotData));
+            
+            if (result.error) {
+                throw new Error(result.error.message || 'Failed to create spot');
+            }
+            
+            navigate(`/spots/${result.payload.id}`);
         } catch (error) {
+            console.error('Error creating spot:', error);
             setErrors({
-                submit: error.message || "An error occurred while creating the spot"
+                submit: error.message || "An error occurred while creating the spot. Please try again."
             });
+            window.scrollTo(0, 0); // Scroll to top to show error
         } finally {
             setIsSubmitting(false);
         }

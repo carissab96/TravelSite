@@ -32,16 +32,53 @@ export const fetchSpotDetails = createAsyncThunk(
 export const createSpot = createAsyncThunk(
     'spots/createSpot',
     async (spotData) => {
-        const response = await fetchWithCsrf('/api/spots', {
+        // First, create the spot
+        const spotResponse = await fetchWithCsrf('/api/spots', {
             method: 'POST',
-            body: JSON.stringify(spotData)
+            body: JSON.stringify({
+                address: spotData.address,
+                city: spotData.city,
+                state: spotData.state,
+                country: spotData.country,
+                lat: spotData.lat,
+                lng: spotData.lng,
+                name: spotData.name,
+                description: spotData.description,
+                price: spotData.price
+            })
         });
-        
-        if (!response.ok) {
-            const error = await response.json();
+
+        if (!spotResponse.ok) {
+            const error = await spotResponse.json();
             throw new Error(error.message || 'Failed to create spot');
         }
-        return response.json();
+
+        const spot = await spotResponse.json();
+
+        // Then, add images one by one
+        const imagePromises = spotData.images.map(async (image) => {
+            const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    url: image.url,
+                    preview: image.preview
+                })
+            });
+
+            if (!imageResponse.ok) {
+                const error = await imageResponse.json();
+                console.error('Failed to add image:', error);
+                // Continue with other images even if one fails
+                return null;
+            }
+
+            return imageResponse.json();
+        });
+
+        await Promise.all(imagePromises);
+
+        // Return the created spot
+        return spot;
     }
 );
 export const fetchUserSpots = createAsyncThunk(
