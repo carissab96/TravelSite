@@ -29,15 +29,22 @@ function SpotDetails() {
         
         const loadSpotData = async () => {
             try {
-                // First load spot details
                 const parsedId = parseInt(spotId, 10);
                 if (isNaN(parsedId)) {
                     throw new Error('Invalid spot ID');
                 }
 
-                await dispatch(fetchSpotDetails(parsedId)).unwrap();
-                // Only fetch reviews after spot details are loaded
-                await dispatch(fetchSpotReviews(parsedId)).unwrap();
+                await dispatch(fetchSpotDetails(parsedId));
+                // For new spots, don't try to fetch reviews immediately
+                // This prevents the 404 error for new spots
+                setTimeout(() => {
+                    dispatch(fetchSpotReviews(parsedId)).catch(err => {
+                        // Ignore 404 errors for new spots
+                        if (!err.message?.includes('404')) {
+                            console.error('Error fetching reviews:', err);
+                        }
+                    });
+                }, 500);
             } catch (error) {
                 console.error('Error loading spot data:', error);
             }
