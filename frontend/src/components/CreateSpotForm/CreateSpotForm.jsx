@@ -113,6 +113,7 @@ function CreateSpotForm() {
         
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            window.scrollTo(0, 0);
             return;
         }
 
@@ -126,11 +127,11 @@ function CreateSpotForm() {
                 city: formData.city.trim(),
                 state: formData.state.trim(),
                 country: formData.country.trim(),
-                lat: formData.lat ? parseFloat(formData.lat) : null,
-                lng: formData.lng ? parseFloat(formData.lng) : null,
+                lat: formData.lat ? formData.lat.trim() : '',
+                lng: formData.lng ? formData.lng.trim() : '',
                 name: formData.name.trim(),
                 description: formData.description.trim(),
-                price: parseFloat(formData.price),
+                price: formData.price.trim(),
                 images: [
                     { url: formData.previewImage.trim(), preview: true },
                     ...[formData.image1, formData.image2, formData.image3, formData.image4]
@@ -140,29 +141,60 @@ function CreateSpotForm() {
             };
 
             const result = await dispatch(createSpot(spotData)).unwrap();
-            navigate(`/spots/${result.id}`);
-        } catch (error) {
-            console.error('Error creating spot:', error);
-            let errorMessage = "An error occurred while creating the spot. Please try again.";
             
-            if (error.message) {
-                errorMessage = error.message;
-            } else if (error.errors) {
-                // Handle validation errors
-                const validationErrors = {};
-                Object.entries(error.errors).forEach(([field, message]) => {
-                    validationErrors[field] = message;
+            if (!result) {
+                setErrors({
+                    submit: 'Failed to create spot. Please try again.'
                 });
-                setErrors(validationErrors);
+                window.scrollTo(0, 0);
                 return;
             }
             
-            setErrors({
-                submit: errorMessage
-            });
-            window.scrollTo(0, 0); // Scroll to top to show error
-        } finally {
+            if (!result.id) {
+                setErrors({
+                    submit: 'Server error: No spot ID received. Please try again.'
+                });
+                window.scrollTo(0, 0);
+                return;
+            }
+            
+            // Ensure we have a valid spot ID
+            const spotId = result.id;
+            if (!spotId || spotId === 'NaN' || spotId === 'undefined') {
+                setErrors({
+                    submit: 'Invalid spot ID received. Please try again.'
+                });
+                window.scrollTo(0, 0);
+                return;
+            }
+            
+            // Navigate to the new spot's details page
+            navigate(`/spots/${spotId}`);
+        } catch (error) {
+            console.error('Error creating spot:', error);
             setIsSubmitting(false);
+            
+            // Handle different error formats
+            if (error.errors) {
+                // Backend validation errors
+                const validationErrors = {};
+                Object.entries(error.errors).forEach(([field, fieldError]) => {
+                    validationErrors[field] = fieldError.msg || fieldError.message || fieldError;
+                });
+                setErrors(validationErrors);
+            } else if (error.message) {
+                // Specific error message
+                setErrors({
+                    submit: error.message
+                });
+            } else {
+                // Generic error
+                setErrors({
+                    submit: 'Failed to create spot. Please check your inputs and try again.'
+                });
+            }
+            
+            window.scrollTo(0, 0);
         }
     };
 

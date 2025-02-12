@@ -14,7 +14,6 @@ export const fetchSpots = createAsyncThunk(
         return data.Spots || data;
     }
 );
-
 export const fetchSpotDetails = createAsyncThunk(
     'spots/fetchSpotDetails',
     async (spotId) => {
@@ -31,61 +30,74 @@ export const fetchSpotDetails = createAsyncThunk(
 
 export const createSpot = createAsyncThunk(
     'spots/createSpot',
-    async (spotData) => {
+    async (spotData, { rejectWithValue }) => {
         try {
             // First, create the spot
             // Clean up lat/lng - convert empty strings to null
-            const lat = spotData.lat ? parseFloat(spotData.lat) : null;
-            const lng = spotData.lng ? parseFloat(spotData.lng) : null;
+            const lat = spotData.lat && spotData.lat.trim() !== '' ? parseFloat(spotData.lat) : null;
+            const lng = spotData.lng && spotData.lng.trim() !== '' ? parseFloat(spotData.lng) : null;
+
+            // Validate lat/lng before sending
+            if (lat !== null && (isNaN(lat) || lat < -90 || lat > 90)) {
+                return rejectWithValue({ message: 'Latitude must be between -90 and 90' });
+            }
+            if (lng !== null && (isNaN(lng) || lng < -180 || lng > 180)) {
+                return rejectWithValue({ message: 'Longitude must be between -180 and 180' });
+            }
+
+            const price = parseFloat(spotData.price);
+            if (isNaN(price) || price <= 0) {
+                return rejectWithValue({ message: 'Price must be a positive number' });
+            }
 
             const spotResponse = await fetchWithCsrf('/api/spots', {
                 method: 'POST',
                 body: JSON.stringify({
-                    address: spotData.address,
-                    city: spotData.city,
-                    state: spotData.state,
-                    country: spotData.country,
-                    lat: lat,
-                    lng: lng,
-                    name: spotData.name,
-                    description: spotData.description,
-                    price: parseFloat(spotData.price)
+                    address: spotData.address.trim(),
+                    city: spotData.city.trim(),
+                    state: spotData.state.trim(),
+                    country: spotData.country.trim(),
+                    lat,
+                    lng,
+                    name: spotData.name.trim(),
+                    description: spotData.description.trim(),
+                    price
                 })
             });
 
             if (!spotResponse.ok) {
-                const error = await spotResponse.json();
-                throw new Error(error.message || error.errors?.[0]?.message || 'Failed to create spot');
+                const errorData = await spotResponse.json();
+                return rejectWithValue(errorData);
             }
 
             const spotResult = await spotResponse.json();
-            const spot = spotResult.spot; // Extract spot from response
+            const spot = spotResult.spot || spotResult; // Handle both response formats
 
             if (!spot || !spot.id) {
-                throw new Error('Invalid spot data received from server');
+                return rejectWithValue({ message: 'Invalid spot data received from server' });
             }
 
             // Then, add images one by one
-            const imagePromises = spotData.images.map(async (image) => {
-                if (!image.url) return null;
+            const imagePromises = spotData.images
+                .filter(image => image && image.url && image.url.trim())
+                .map(async (image) => {
+                    const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            url: image.url.trim(),
+                            preview: image.preview
+                        })
+                    });
 
-                const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        url: image.url,
-                        preview: image.preview
-                    })
+                    if (!imageResponse.ok) {
+                        const error = await imageResponse.json();
+                        console.error('Failed to add image:', error);
+                        // Continue with other images even if one fails
+                        return null;
+                    }
+
+                    return imageResponse.json();
                 });
-
-                if (!imageResponse.ok) {
-                    const error = await imageResponse.json();
-                    console.error('Failed to add image:', error);
-                    // Continue with other images even if one fails
-                    return null;
-                }
-
-                return imageResponse.json();
-            });
 
             await Promise.all(imagePromises);
 
@@ -93,7 +105,9 @@ export const createSpot = createAsyncThunk(
             return spot;
         } catch (error) {
             console.error('Error in createSpot:', error);
-            throw error;
+            return rejectWithValue({
+                message: error.message || 'An unexpected error occurred'
+            });
         }
     }
 );

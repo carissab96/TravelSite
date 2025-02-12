@@ -26,11 +26,25 @@ function SpotDetails() {
 
     useEffect(() => {
         if (!spotId) return;
-        dispatch(fetchSpotDetails(parseInt(spotId, 10)));
-        dispatch(fetchSpotReviews(parseInt(spotId, 10)));
-    }, [dispatch, spotId]);
+        
+        const loadSpotData = async () => {
+            try {
+                // First load spot details
+                const parsedId = parseInt(spotId, 10);
+                if (isNaN(parsedId)) {
+                    throw new Error('Invalid spot ID');
+                }
 
-    console.log('Component render - spot:', spot, 'isLoading:', isLoading, 'error:', error);
+                await dispatch(fetchSpotDetails(parsedId)).unwrap();
+                // Only fetch reviews after spot details are loaded
+                await dispatch(fetchSpotReviews(parsedId)).unwrap();
+            } catch (error) {
+                console.error('Error loading spot data:', error);
+            }
+        };
+
+        loadSpotData();
+    }, [dispatch, spotId]);
 
     if (error) {
         return <div className="error-message">{error}</div>;
