@@ -438,8 +438,16 @@ router.post('/', requireAuth, [
       updatedAt: new Date(),
     });
 
-    // Return just the spot data without nesting
-    return res.status(201).json(newSpot);
+    // Fetch the spot with Owner data
+    const spotWithOwner = await Spot.findByPk(newSpot.id, {
+      include: [{
+        model: User,
+        as: 'Owner',
+        attributes: ['id', 'firstName', 'lastName']
+      }]
+    });
+
+    return res.status(201).json(spotWithOwner);
   } catch (error) {
     console.error('Error creating spot:', error);
     if (error.name === 'SequelizeValidationError') {

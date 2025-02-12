@@ -279,8 +279,8 @@ const spotsSlice = createSlice({
                 state.singleSpot = {
                     ...action.payload,
                     avgRating: action.payload.avgStarRating || 'New',
-                    images: action.payload.SpotImages || [],
-                    owner: action.payload.Owner || {},
+                    SpotImages: action.payload.SpotImages || [],
+                    Owner: action.payload.Owner || {},
                     numReviews: action.payload.numReviews || 0
                 };
             })
@@ -295,8 +295,15 @@ const spotsSlice = createSlice({
             })
             .addCase(createSpot.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.allSpots[action.payload.id] = action.payload;
-                state.singleSpot = action.payload;
+                const formattedSpot = {
+                    ...action.payload,
+                    avgRating: 'New',
+                    SpotImages: action.payload.SpotImages || [],
+                    Owner: action.payload.Owner || {},
+                    numReviews: 0
+                };
+                state.allSpots[action.payload.id] = formattedSpot;
+                state.singleSpot = formattedSpot;
             })
             .addCase(createSpot.rejected, (state, action) => {
                 state.isLoading = false;

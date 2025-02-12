@@ -57,7 +57,7 @@ function SpotDetails() {
         return <div className="error-message">{error}</div>;
     }
 
-    if (isLoading || !spot) {
+    if (isLoading || !spot || !spot.Owner) {
         return <div className="loading">Loading spot details...</div>;
     }
 
@@ -76,15 +76,15 @@ function SpotDetails() {
             <div className="spot-details-content">
                 <header className="spot-header">
                     <div className="title-location">
-                        <h1>{spot.name}</h1>
-                        <p className="location">{spot.city}, {spot.state}, {spot.country}</p>
+                        <h1>{spot?.name || 'Loading...'}</h1>
+                        <p className="location">{spot?.city || ''}, {spot?.state || ''}, {spot?.country || ''}</p>
                     </div>
                 </header>
             
             <div className="images-container">
                 <div className="main-image">
                     <img 
-                        src={spot.images?.[0]?.url || 'https://placehold.co/600x400?text=No+Image'} 
+                        src={spot.SpotImages?.[0]?.url || 'https://placehold.co/600x400?text=No+Image'} 
                         alt={spot.name}
                         onError={(e) => {
                             e.target.src = 'https://placehold.co/600x400?text=No+Image';
@@ -92,7 +92,7 @@ function SpotDetails() {
                     />
                 </div>
                 <div className="small-images">
-                    {(spot.images || []).slice(1, 5).map((image, index) => (
+                    {(spot.SpotImages || []).slice(1, 5).map((image, index) => (
                         <img 
                             key={index}
                             src={image.url || 'https://placehold.co/600x400?text=No+Image'}
@@ -107,12 +107,12 @@ function SpotDetails() {
 
             <div className="spot-content">
                 <div className="spot-info">
-                    <h2>Hosted by {spot.owner.firstName} {spot.owner.lastName}</h2>
-                    <p className="description">{spot.description}</p>
+                    <h2>Hosted by {spot?.Owner?.firstName || 'Unknown'} {spot?.Owner?.lastName || ''}</h2>
+                    <p className="description">{spot?.description || 'No description available'}</p>
                 </div>
                 <div className="callout-box">
                     <div className="price-info">
-                        <span className="price">${spot.price}</span> <span className="per-night">night</span>
+                        <span className="price">${spot?.price || '0'}</span> <span className="per-night">night</span>
                     </div>
                     <div className="rating-info">
                         <span className="stars">★ {spot.avgRating === 'New' ? 'New' : Number(spot.avgRating).toFixed(1)}</span>
