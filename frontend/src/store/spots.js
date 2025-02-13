@@ -26,12 +26,7 @@ export const fetchSpotDetails = createAsyncThunk(
         }
         const data = await response.json();
         
-        // Ensure spot has an images array
-        return {
-            ...data,
-            images: data.SpotImages || [],
-            SpotImages: undefined // Remove the old property
-        };
+        return data;
     }
 );
 
