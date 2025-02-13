@@ -11,7 +11,7 @@ export const fetchSpots = createAsyncThunk(
             throw new Error(error.message || 'Failed to fetch spots');
         }
         const data = await response.json();
-        return data.Spots || data;
+        return data.Spots;
     }
 );
 export const fetchSpotDetails = createAsyncThunk(
