@@ -438,13 +438,32 @@ router.post('/', requireAuth, [
       updatedAt: new Date(),
     });
 
-    // Fetch the spot with Owner data
+    // If images are provided in the request
+    if (req.body.images && Array.isArray(req.body.images)) {
+      // Create all images, setting preview=true for the first one
+      const imagePromises = req.body.images.map((image, index) => {
+        return SpotImage.create({
+          spotId: newSpot.id,
+          url: image.url,
+          preview: index === 0  // First image is preview
+        });
+      });
+      await Promise.all(imagePromises);
+    }
+
+    // Fetch the spot with Owner data and images
     const spotWithOwner = await Spot.findByPk(newSpot.id, {
-      include: [{
-        model: User,
-        as: 'Owner',
-        attributes: ['id', 'firstName', 'lastName']
-      }]
+      include: [
+        {
+          model: User,
+          as: 'Owner',
+          attributes: ['id', 'firstName', 'lastName']
+        },
+        {
+          model: SpotImage,
+          attributes: ['id', 'url', 'preview']
+        }
+      ]
     });
 
     return res.status(201).json(spotWithOwner);
