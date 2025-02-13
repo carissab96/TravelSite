@@ -21,7 +21,8 @@ const UpdateSpot = () => {
         lng: '',
         name: '',
         description: '',
-        price: ''
+        price: '',
+        images: []
     });
 
     useEffect(() => {
@@ -48,7 +49,8 @@ const UpdateSpot = () => {
                 lng: spot.lng || '',
                 name: spot.name || '',
                 description: spot.description || '',
-                price: spot.price || ''
+                price: spot.price || '',
+                images: spot.SpotImages?.map(img => ({ url: img.url })) || []
             });
         }
     }, [spot]);
@@ -72,6 +74,9 @@ const UpdateSpot = () => {
         if (!formData.price || formData.price <= 0) {
             newErrors.price = 'Price must be greater than 0';
         }
+        if (formData.images.some(img => !img.url || !img.url.trim())) {
+            newErrors.images = 'All image URLs must be valid';
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -83,8 +88,9 @@ const UpdateSpot = () => {
 
         try {
             await dispatch(updateSpot({ 
-                spotId, 
-                spotData: formData 
+                spotId,
+                ...formData,
+                images: formData.images.filter(img => img.url && img.url.trim())
             }));
             navigate(`/spots/${spotId}`);
         } catch (error) {
@@ -186,6 +192,53 @@ const UpdateSpot = () => {
                             {errors.lng && <span className="error">{errors.lng}</span>}
                         </div>
                     </div>
+                </section>
+
+                <section className="images-section">
+                    <h2>Spot Images</h2>
+                    <p>Please provide at least one image URL for your spot. The first image will be the preview image.</p>
+                    
+                    {formData.images.map((image, index) => (
+                        <div key={index} className="form-group">
+                            <label>Image URL {index + 1}</label>
+                            <div className="image-input-group">
+                                <input
+                                    type="text"
+                                    value={image.url || ''}
+                                    onChange={(e) => {
+                                        const newImages = [...formData.images];
+                                        newImages[index] = { url: e.target.value };
+                                        setFormData(prev => ({ ...prev, images: newImages }));
+                                    }}
+                                    placeholder="Image URL"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newImages = formData.images.filter((_, i) => i !== index);
+                                        setFormData(prev => ({ ...prev, images: newImages }));
+                                    }}
+                                    className="remove-image-btn"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setFormData(prev => ({
+                                ...prev,
+                                images: [...prev.images, { url: '' }]
+                            }));
+                        }}
+                        className="add-image-btn"
+                    >
+                        Add Image URL
+                    </button>
+                    {errors.images && <span className="error">{errors.images}</span>}
                 </section>
 
                 <section className="description-section">

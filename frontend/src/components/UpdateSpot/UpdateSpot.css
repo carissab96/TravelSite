@@ -100,6 +100,45 @@
     background-color: #e31c5f;
 }
 
+/* Image Section Styles */
+.images-section .image-input-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.images-section .image-input-group input {
+    flex: 1;
+}
+
+.remove-image-btn {
+    padding: 0.5rem 1rem;
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.remove-image-btn:hover {
+    background-color: #ff4146;
+}
+
+.add-image-btn {
+    padding: 0.5rem 1rem;
+    background-color: #00a699;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.add-image-btn:hover {
+    background-color: #008c8c;
+}
+
 @media (max-width: 600px) {
     .form-row {
         flex-direction: column;
