@@ -6,7 +6,7 @@ export const fetchSpotReviews = createAsyncThunk(
     'reviews/fetchSpotReviews',
     async (spotId) => {
         try {
-            const response = await fetchWithCsrf(`/api/reviews/${spotId}/reviews`);
+            const response = await fetchWithCsrf(`/api/spots/${spotId}/reviews`);
             if (!response.ok) {
                 if (response.status === 404) {
                     return []; // Return empty array for spots with no reviews
@@ -28,7 +28,7 @@ export const createReview = createAsyncThunk(
     'reviews/createReview',
     async ({ spotId, review }) => {
         try {
-            const response = await fetchWithCsrf(`/api/reviews/${spotId}/reviews`, {
+            const response = await fetchWithCsrf(`/api/spots/${spotId}/reviews`, {
                 method: 'POST',
                 body: JSON.stringify(review)
             });
