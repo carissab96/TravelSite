@@ -467,7 +467,7 @@ router.post('/', requireAuth, [
 // Edit a Spot
 router.put('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
-  const { address, city, state, country, lat, lng, name, description, price } = req.body;
+  const { address, city, state, country, lat, lng, name, description, price, images } = req.body;
 
   // Validation: Check for empty attributes
   const errors = [];
@@ -492,7 +492,58 @@ router.put('/:spotId', requireAuth, async (req, res) => {
     // Update the spot with the provided data
     await spot.update({ address, city, state, country, lat, lng, name, description, price });
 
-    return res.status(200).json({ spot });
+    // Handle image updates if provided
+    if (images && Array.isArray(images)) {
+      // Delete existing images
+      await SpotImage.destroy({
+        where: { spotId: spot.id }
+      });
+
+      // Create new images
+      const spotImages = await Promise.all(
+        images.map(async (image, index) => {
+          return SpotImage.create({
+            spotId: spot.id,
+            url: image.url,
+            preview: index === 0 // First image is preview by default
+          });
+        })
+      );
+
+      // Fetch updated spot with images and owner
+      const updatedSpot = await Spot.findByPk(spot.id, {
+        include: [
+          {
+            model: SpotImage,
+            attributes: ['id', 'url', 'preview']
+          },
+          {
+            model: User,
+            as: 'Owner',
+            attributes: ['id', 'firstName', 'lastName']
+          }
+        ]
+      });
+
+      return res.status(200).json(updatedSpot);
+    }
+
+    // If no images provided, just return the updated spot
+    const updatedSpot = await Spot.findByPk(spot.id, {
+      include: [
+        {
+          model: SpotImage,
+          attributes: ['id', 'url', 'preview']
+        },
+        {
+          model: User,
+          as: 'Owner',
+          attributes: ['id', 'firstName', 'lastName']
+        }
+      ]
+    });
+
+    return res.status(200).json(updatedSpot);
   } catch (error) {
     console.error('Error updating spot:', error);
     if (error.name === 'SequelizeValidationError') {

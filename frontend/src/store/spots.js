@@ -158,53 +158,36 @@ export const createSpot = createAsyncThunk(
         }
     }
 );
-export const fetchUserSpots = createAsyncThunk(
-    'spots/fetchUserSpots',
-    async () => {
-        const response = await fetchWithCsrf('/api/spots/current');
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch user spots');
-        }
-        const data = await response.json();
-        return data.Spots || [];
-    }
-);
-
 export const updateSpot = createAsyncThunk(
     'spots/updateSpot',
-    async ({ spotId, spotData }, { rejectWithValue }) => {
+    async ({ spotId, ...spotData }, { rejectWithValue }) => {
         try {
-            // Clean up the data
-            const updateBody = {
-                address: spotData.address?.trim(),
-                city: spotData.city?.trim(),
-                state: spotData.state?.trim(),
-                country: spotData.country?.trim(),
-                name: spotData.name?.trim(),
-                description: spotData.description?.trim(),
-                price: parseFloat(spotData.price)
-            };
+            // Clean up lat/lng - convert empty strings to null
+            const lat = spotData.lat && spotData.lat.trim() !== '' ? parseFloat(spotData.lat) : null;
+            const lng = spotData.lng && spotData.lng.trim() !== '' ? parseFloat(spotData.lng) : null;
 
-            // Handle lat/lng
-            if (spotData.lat && spotData.lat.trim() !== '') {
-                const lat = parseFloat(spotData.lat);
-                if (!isNaN(lat) && lat >= -90 && lat <= 90) {
-                    updateBody.lat = lat;
-                }
+            // Validate lat/lng before sending
+            if (lat !== null && (isNaN(lat) || lat < -90 || lat > 90)) {
+                return rejectWithValue({ message: 'Latitude must be between -90 and 90' });
             }
-            if (spotData.lng && spotData.lng.trim() !== '') {
-                const lng = parseFloat(spotData.lng);
-                if (!isNaN(lng) && lng >= -180 && lng <= 180) {
-                    updateBody.lng = lng;
-                }
+            if (lng !== null && (isNaN(lng) || lng < -180 || lng > 180)) {
+                return rejectWithValue({ message: 'Longitude must be between -180 and 180' });
+            }
+
+            // Format images data if present
+            let formattedData = { ...spotData };
+            if (spotData.images && Array.isArray(spotData.images)) {
+                formattedData.images = spotData.images.map(image => ({
+                    url: image.url || image,
+                    preview: false // Will be set to true for first image in backend
+                }));
             }
 
             const response = await fetchWithCsrf(`/api/spots/${spotId}`, {
                 method: 'PUT',
-                body: JSON.stringify(updateBody)
+                body: JSON.stringify(formattedData)
             });
-            
+
             if (!response.ok) {
                 const error = await response.json();
                 return rejectWithValue(error);
@@ -217,6 +200,19 @@ export const updateSpot = createAsyncThunk(
                 message: error.message || 'Failed to update spot'
             });
         }
+    }
+);
+
+export const fetchUserSpots = createAsyncThunk(
+    'spots/fetchUserSpots',
+    async () => {
+        const response = await fetchWithCsrf('/api/spots/current');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to fetch user spots');
+        }
+        const data = await response.json();
+        return data.Spots || [];
     }
 );
 
@@ -352,12 +348,13 @@ const spotsSlice = createSlice({
             })
             .addCase(updateSpot.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const updatedSpot = action.payload.spot;
-                state.allSpots[updatedSpot.id] = updatedSpot;
-                if (state.userSpots) {
-                    state.userSpots[updatedSpot.id] = updatedSpot;
+                state.singleSpot = action.payload;
+                if (state.allSpots) {
+                    state.allSpots[action.payload.id] = action.payload;
                 }
-                state.singleSpot = updatedSpot;
+                if (state.userSpots) {
+                    state.userSpots[action.payload.id] = action.payload;
+                }
             })
             .addCase(updateSpot.rejected, (state, action) => {
                 state.isLoading = false;
