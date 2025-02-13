@@ -33,10 +33,11 @@ app.use(
 app.use(
   csurf({
     cookie: {
-      secure: isProduction,
-      sameSite: isProduction && "Lax",
+      secure: false,  // Allow HTTP in development
+      sameSite: isProduction ? 'Lax' : 'None',
       httpOnly: true
-    }
+    },
+    ignoreMethods: ['HEAD', 'OPTIONS']
   })
 );
 

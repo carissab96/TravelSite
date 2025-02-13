@@ -497,21 +497,66 @@ router.put('/:spotId', requireAuth, async (req, res) => {
 router.delete('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
+  // Validate spotId is a number
+  const spotIdNum = parseInt(spotId, 10);
+  if (isNaN(spotIdNum)) {
+      return res.status(400).json({ 
+          message: 'Spot ID must be a valid number',
+          statusCode: 400
+      });
+  }
+
   try {
-      const spot = await Spot.findByPk(spotId);
+      const spot = await Spot.findByPk(spotIdNum, {
+          include: [
+              { model: SpotImage },
+              { model: Review }
+          ]
+      });
 
       if (!spot) {
-          return res.status(404).json({ message: 'Spot not found' });
+          return res.status(404).json({ 
+              message: 'Spot not found',
+              statusCode: 404
+          });
       }
 
-      await spot.destroy(); // Delete the spot
+      // Check if the current user is the owner of the spot
+      // Convert both to numbers for comparison
+      if (Number(spot.ownerId) !== Number(req.user.id)) {
+          return res.status(403).json({ 
+              message: 'Forbidden: You do not have permission to delete this spot',
+              statusCode: 403
+          });
+      }
+
+      // Delete associated records first
+      if (spot.SpotImages && spot.SpotImages.length > 0) {
+          await SpotImage.destroy({
+              where: { spotId: spotIdNum }
+          });
+      }
+      
+      if (spot.Reviews && spot.Reviews.length > 0) {
+          await Review.destroy({
+              where: { spotId: spotIdNum }
+          });
+      }
+
+      // Finally delete the spot
+      await spot.destroy();
 
       return res.status(200).json({
           message: 'Spot deleted successfully',
+          statusCode: 200
       });
   } catch (error) {
       console.error('Error deleting spot:', error);
-      return res.status(500).json({ message: 'Internal Server Error' });
+      return res.status(500).json({ 
+          message: 'Internal Server Error',
+          statusCode: 500,
+          errors: process.env.NODE_ENV === 'development' ? [error.message] : undefined
+      });
   }
 });
 
@@ -564,14 +609,15 @@ router.get('/current', requireAuth, async (req, res) => {
   }   
 });
 
-// Add an image to a spot
-router.post('/:id/images', requireAuth, async (req, res) => {
-    const { id } = req.params;
-    const { url, preview } = req.body;
+const { upload } = require('../../config/aws');
 
-    // Validate input
-    if (!url || typeof preview !== 'boolean') {
-        return res.status(400).json({ message: 'Invalid input' });
+// Add an image to a spot
+router.post('/:id/images', requireAuth, upload.single('image'), async (req, res) => {
+    const { id } = req.params;
+    const preview = req.body.preview === 'true';
+
+    if (!req.file) {
+        return res.status(400).json({ message: 'No image file provided' });
     }
 
     try {
@@ -603,7 +649,7 @@ router.post('/:id/images', requireAuth, async (req, res) => {
         // Create the new image in the database
         const newImage = await SpotImage.create({
             spotId: spot.id,
-            url,
+            url: req.file.location, // S3 URL of the uploaded file
             preview,
         });
 
