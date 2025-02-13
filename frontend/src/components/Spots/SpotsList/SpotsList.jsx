@@ -1,23 +1,30 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSpots } from '../../../store/spots';
+import { fetchSpots, selectAllSpots } from '../../../store/spots';
 import SpotTile from './SpotTile';
 import './SpotsList.css';
 
 function SpotsList() {
     const dispatch = useDispatch();
-    const spots = useSelector(state => {
-        console.log('Redux state:', state);
-        return Object.values(state.spots.allSpots);
-    });
+    const spots = useSelector(selectAllSpots);
+    const isLoading = useSelector(state => state.spots.isLoading);
+    const error = useSelector(state => state.spots.error);
 
     useEffect(() => {
         console.log('Fetching spots...');
         dispatch(fetchSpots());
     }, [dispatch]);
 
-    if (!spots.length) {
+    if (error) {
+        return <div className="error">Error loading spots: {error}</div>;
+    }
+
+    if (isLoading) {
         return <div className="loading">Loading spots...</div>;
+    }
+
+    if (!spots.length) {
+        return <div className="no-spots">No spots available.</div>;
     }
 
     return (

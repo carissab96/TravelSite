@@ -8,7 +8,7 @@ export async function fetchWithCsrf(url, options = {}) {
     // Add CSRF token for all requests
     const xsrfToken = Cookies.get('XSRF-TOKEN');
     if (xsrfToken) {
-        options.headers['XSRF-TOKEN'] = xsrfToken;
+        options.headers['X-CSRF-Token'] = xsrfToken;
     }
 
     // Add Content-Type for non-GET requests
@@ -17,20 +17,19 @@ export async function fetchWithCsrf(url, options = {}) {
     }
 
     try {
-        console.log('Fetching:', url, 'with options:', options);
+        console.log('Fetching:', url, 'with options:', { 
+            ...options, 
+            headers: { ...options.headers, 'XSRF-TOKEN': xsrfToken }
+        });
+        
         const response = await fetch(url, options);
         console.log('Response:', response);
 
-        if (!response.ok) {
-            const data = await response.json();
-            console.error('Response error:', data);
-            throw new Error(data.message || `HTTP error! status: ${response.status}`);
-        }
-
+        // Don't throw on non-ok response, let the caller handle it
         return response;
     } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
+        console.error('Network error:', error);
+        throw new Error('Network error. Please check your connection.');
     }
 }
 

@@ -10,8 +10,11 @@ import { ModalProvider, Modal } from './components/context/Modal';
 
 // Initialize CSRF token
 async function initializeApp() {
+  // Always restore CSRF token
+  await restoreCSRF();
+  
+  // Development helpers
   if (import.meta.env.MODE !== 'production') {
-    await restoreCSRF();
     window.csrfFetch = fetchWithCsrf;
     window.store = store;
     window.sessionActions = sessionActions;

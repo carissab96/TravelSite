@@ -24,14 +24,20 @@ const ManageSpots = () => {
 
     const handleDelete = async (spotId) => {
         if (window.confirm('Are you sure you want to delete this spot?')) {
-            await dispatch(deleteSpot(spotId));
-            dispatch(fetchUserSpots());
+            try {
+                 await dispatch(deleteSpot(spotId));
+                // Refresh the spots list
+                await dispatch(fetchUserSpots());
+            } catch (error) {
+                console.error('Failed to delete spot:', error);
+                window.alert('Failed to delete spot: ' + error.message);
+            }
         }
-    };
+    }
 
-    const handleCreateNew = () => {
+    async function handleCreateNew() {
         navigate('/spots/new');
-    };
+    }
 
     if (!spots) return <div className="manage-spots-loading">Loading...</div>;
 

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import { fetchWithCsrf } from './csrf';
 
 // Thunk Actions
@@ -11,7 +11,15 @@ export const fetchSpots = createAsyncThunk(
             throw new Error(error.message || 'Failed to fetch spots');
         }
         const data = await response.json();
-        return data.Spots || data;
+        console.log('Spots API response:', data);
+        
+        // Handle both possible response formats
+        const spots = data.Spots || data.spots || data;
+        if (!Array.isArray(spots)) {
+            console.error('Unexpected spots data format:', spots);
+            throw new Error('Invalid spots data format');
+        }
+        return spots;
     }
 );
 
@@ -31,54 +39,96 @@ export const fetchSpotDetails = createAsyncThunk(
 
 export const createSpot = createAsyncThunk(
     'spots/createSpot',
-    async (spotData) => {
-        // First, create the spot
-        const spotResponse = await fetchWithCsrf('/api/spots', {
-            method: 'POST',
-            body: JSON.stringify({
-                address: spotData.address,
-                city: spotData.city,
-                state: spotData.state,
-                country: spotData.country,
-                lat: spotData.lat,
-                lng: spotData.lng,
-                name: spotData.name,
-                description: spotData.description,
-                price: spotData.price
-            })
-        });
-
-        if (!spotResponse.ok) {
-            const error = await spotResponse.json();
-            throw new Error(error.message || 'Failed to create spot');
-        }
-
-        const spot = await spotResponse.json();
-
-        // Then, add images one by one
-        const imagePromises = spotData.images.map(async (image) => {
-            const imageResponse = await fetchWithCsrf(`/api/spots/${spot.id}/images`, {
+    async (spotFormData, { rejectWithValue }) => {
+        try {
+            console.log('Starting spot creation...');
+            // First, create the spot
+            const spotResponse = await fetchWithCsrf('/api/spots', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                    url: image.url,
-                    preview: image.preview
+                    address: spotFormData.get('address'),
+                    city: spotFormData.get('city'),
+                    state: spotFormData.get('state'),
+                    country: spotFormData.get('country'),
+                    lat: Number(spotFormData.get('lat')),
+                    lng: Number(spotFormData.get('lng')),
+                    name: spotFormData.get('name'),
+                    description: spotFormData.get('description'),
+                    price: Number(spotFormData.get('price'))
                 })
             });
 
-            if (!imageResponse.ok) {
-                const error = await imageResponse.json();
-                console.error('Failed to add image:', error);
-                // Continue with other images even if one fails
-                return null;
+            if (!spotResponse.ok) {
+                try {
+                    const error = await spotResponse.json();
+                    return rejectWithValue(error.message || 'Failed to create spot');
+                } catch (jsonError) {
+                    console.error('Error parsing response:', jsonError);
+                    const textError = await spotResponse.text();
+                    console.error('Raw response:', textError);
+                    return rejectWithValue('Server error: ' + textError);
+                }
             }
 
-            return imageResponse.json();
-        });
+            const spotResponseData = await spotResponse.json();
+            const createdSpot = spotResponseData.spot || spotResponseData;
 
-        await Promise.all(imagePromises);
+            if (!createdSpot || !createdSpot.id) {
+                throw new Error('Invalid response from server');
+            }
 
-        // Return the created spot
-        return spot;
+            // Upload preview image
+            const previewImage = spotFormData.get('previewImage');
+            if (previewImage) {
+                const previewFormData = new FormData();
+                previewFormData.append('image', previewImage);
+                previewFormData.append('preview', 'true');
+
+                const previewResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}/images`, {
+                    method: 'POST',
+                    body: previewFormData
+                });
+
+                if (!previewResponse.ok) {
+                    // If preview image upload fails, delete the spot
+                    await fetchWithCsrf(`/api/spots/${createdSpot.id}`, { method: 'DELETE' });
+                    const error = await previewResponse.json();
+                    return rejectWithValue(error.message || 'Failed to upload preview image');
+                }
+            }
+
+            // Upload additional images
+            const additionalImages = spotFormData.getAll('images');
+            for (const image of additionalImages) {
+                const imageFormData = new FormData();
+                imageFormData.append('image', image);
+                imageFormData.append('preview', 'false');
+
+                const imageResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}/images`, {
+                    method: 'POST',
+                    body: imageFormData
+                });
+
+                if (!imageResponse.ok) {
+                    // Log error but continue with other images
+                    console.error('Failed to upload additional image:', await imageResponse.json());
+                }
+            }
+
+            // Get the final spot with all images
+            const finalResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}`);
+            if (!finalResponse.ok) {
+                throw new Error('Failed to fetch updated spot details');
+            }
+
+            return await finalResponse.json();
+        } catch (error) {
+            console.error('Error in createSpot:', error);
+            return rejectWithValue(error.message || 'An unexpected error occurred');
+        }
     }
 );
 export const fetchUserSpots = createAsyncThunk(
@@ -120,7 +170,8 @@ export const deleteSpot = createAsyncThunk(
             const error = await response.json();
             throw new Error(error.message || 'Failed to delete spot');
         }
-        return spotId;
+        const data = await response.json();
+        return { spotId, ...data };
     }
 );
 // Initial State
@@ -139,6 +190,7 @@ const spotsSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+
             // Fetch Spots
             .addCase(fetchSpots.pending, (state) => {
                 state.isLoading = true;
@@ -219,9 +271,14 @@ const spotsSlice = createSlice({
             })
             .addCase(deleteSpot.fulfilled, (state, action) => {
                 state.isLoading = false;
-                delete state.allSpots[action.payload];
-                if (state.userSpots) {
-                    delete state.userSpots[action.payload];
+                const { spotId } = action.payload;
+                // Remove from allSpots
+                if (state.allSpots && spotId in state.allSpots) {
+                    delete state.allSpots[spotId];
+                }
+                // Remove from userSpots if present
+                if (state.userSpots && spotId in state.userSpots) {
+                    delete state.userSpots[spotId];
                 }
             })
             .addCase(deleteSpot.rejected, (state, action) => {
@@ -248,5 +305,11 @@ const spotsSlice = createSlice({
             });
     }
 });
+
+// Memoized Selectors
+export const selectAllSpots = createSelector(
+    state => state.spots.allSpots,
+    allSpots => Object.values(allSpots)
+);
 
 export default spotsSlice.reducer;

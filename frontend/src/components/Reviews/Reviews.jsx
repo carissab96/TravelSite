@@ -32,10 +32,23 @@ function Reviews({ spotId }) {
         return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     };
 
+    // Handle loading state
+    const reviewsLoading = useSelector(state => state.reviews.spot.loading);
+    const reviewsError = useSelector(state => state.reviews.spot.error);
+
+    if (reviewsLoading) {
+        return <div className="reviews-section">Loading reviews...</div>;
+    }
+
+    // Don't show error for 404 (no reviews yet)
+    if (reviewsError && !reviewsError.includes("couldn't be found")) {
+        return <div className="reviews-section">Error loading reviews: {reviewsError}</div>;
+    }
+
     if (!reviews || reviews.length === 0) {
         return (
             <div className="reviews-section">
-                <h2>Reviews</h2>
+                <h2>★ New</h2>
                 <p className="no-reviews">Be the first to post a review!</p>
                 {canPostReview && (
                     <button className="post-review-button">Post Your Review</button>

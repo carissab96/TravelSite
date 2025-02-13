@@ -63,7 +63,10 @@ function SpotDetails() {
             <div className="images-container">
                 <div className="main-image">
                     <img 
-                        src={spot.images[0]?.url || 'https://placehold.co/600x400?text=No+Image'} 
+                        src={
+                            (spot.images && spot.images.length > 0 && spot.images[0]?.url) || 
+                            'https://placehold.co/600x400?text=No+Image'
+                        } 
                         alt={spot.name}
                         onError={(e) => {
                             e.target.src = 'https://placehold.co/600x400?text=No+Image';
@@ -71,22 +74,24 @@ function SpotDetails() {
                     />
                 </div>
                 <div className="small-images">
-                    {spot.images.slice(1, 5).map((image, index) => (
-                        <img 
-                            key={index}
-                            src={image.url}
-                            alt={`${spot.name} view ${index + 2}`}
-                            onError={(e) => {
-                                e.target.src = 'https://placehold.co/600x400?text=No+Image';
-                            }}
-                        />
-                    ))}
+                    {spot.images && spot.images.length > 1 ? 
+                        spot.images.slice(1, 5).map((image, index) => (
+                            <img 
+                                key={index}
+                                src={image.url || 'https://placehold.co/600x400?text=No+Image'}
+                                alt={`${spot.name} view ${index + 2}`}
+                                onError={(e) => {
+                                    e.target.src = 'https://placehold.co/600x400?text=No+Image';
+                                }}
+                            />
+                        ))
+                    : null}
                 </div>
             </div>
 
             <div className="spot-content">
                 <div className="spot-info">
-                    <h2>Hosted by {spot.owner.firstName} {spot.owner.lastName}</h2>
+                    <h2>Hosted by {spot.owner?.firstName || 'Unknown'} {spot.owner?.lastName || ''}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
                 <div className="callout-box">
@@ -110,7 +115,10 @@ function SpotDetails() {
             {/* Reviews Section */}
             <section className="reviews-section">
                 <div className="reviews-header">
-                    <h2>★ {spot.avgStarRating?.toFixed(1) || 'New'} · {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}</h2>
+                    <h2>
+                        ★ {spot.avgStarRating ? spot.avgStarRating.toFixed(1) : 'New'} · 
+                        {spot.numReviews || 0} {(spot.numReviews === 1) ? 'Review' : 'Reviews'}
+                    </h2>
                     {user && !isOwner && !hasReviewed && (
                         <button 
                             onClick={() => setShowReviewModal(true)}

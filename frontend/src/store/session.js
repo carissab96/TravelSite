@@ -1,4 +1,4 @@
-import { fetchWithCsrf } from './csrf';
+import { fetchWithCsrf, restoreCSRF } from './csrf';
 
 // Action Types
 const SET_USER = 'session/SET_USER';
@@ -19,20 +19,64 @@ export const login = (credentials) => async (dispatch) => {
     try {
         const response = await fetchWithCsrf('/api/session', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(credentials)
         });
-        const data = await response.json();
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.error('Error parsing response:', e);
+            return { 
+                errors: { 
+                    credential: 'Server error: Invalid response format'
+                } 
+            };
+        }
+
+        console.log('Login response:', { 
+            status: response.status, 
+            ok: response.ok,
+            data 
+        });
+
         if (!response.ok) {
-            return { errors: data.errors || { credential: 'The provided credentials were invalid.' } };
+            if (response.status === 401) {
+                return { 
+                    errors: { 
+                        credential: 'Invalid credentials'
+                    } 
+                };
+            }
+            return { 
+                errors: data.errors || { 
+                    credential: data.message || 'Server error'
+                } 
+            };
         }
-        if (data.user) {
-            dispatch(setUser(data.user));
-            return { user: data.user };
-        } else {
-            return { errors: { credential: 'The provided credentials were invalid.' } };
+
+        if (!data || !data.user) {
+            console.error('Invalid response format:', data);
+            return { 
+                errors: { 
+                    credential: 'Server error: Missing user data'
+                } 
+            };
         }
+
+        dispatch(setUser(data.user));
+        return { user: data.user };
+
     } catch (error) {
-        return { errors: { credential: 'An unexpected error occurred.' } };
+        console.error('Login error:', error);
+        return { 
+            errors: { 
+                credential: error.message || 'Network error. Please try again.'
+            } 
+        };
     }
 };
 

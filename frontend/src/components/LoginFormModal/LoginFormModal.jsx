@@ -29,11 +29,24 @@ function LoginFormModal() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
-        const result = await dispatch(sessionActions.login({ credential, password }));
-        if (result && result.errors) {
-            setErrors(result.errors);
-        } else if (result && result.user) {
-            closeModal();
+        try {
+            const result = await dispatch(sessionActions.login({ credential, password }));
+            console.log('Login result:', result);
+            
+            if (result && result.errors) {
+                setErrors(result.errors);
+                return;
+            }
+            
+            if (result && result.user) {
+                closeModal();
+                return;
+            }
+            
+            setErrors({ credential: 'An unexpected error occurred' });
+        } catch (error) {
+            console.error('Login error:', error);
+            setErrors({ credential: 'An unexpected error occurred' });
         }
     };
 
@@ -85,11 +98,14 @@ function LoginFormModal() {
                         required    
                     />
                 </label>
-                {errors.credential && (
-                    <ul className="error-list">
-                        <li>{errors.credential}</li>
-                    </ul>
-                )}
+                <div className="error-container">
+                    {errors.credential && (
+                        <p className="error-message">{errors.credential}</p>
+                    )}
+                    {errors.password && (
+                        <p className="error-message">{errors.password}</p>
+                    )}
+                </div>
                 <button 
                     type="submit" 
                     disabled={!isValid}

@@ -17,7 +17,18 @@ function CreateSpotForm() {
         lng: '',
         description: '',
         name: '',
-        price: '',
+        price: ''
+    });
+
+    const [imageFiles, setImageFiles] = useState({
+        previewImage: null,
+        image1: null,
+        image2: null,
+        image3: null,
+        image4: null
+    });
+
+    const [imagePreviews, setImagePreviews] = useState({
         previewImage: '',
         image1: '',
         image2: '',
@@ -28,6 +39,23 @@ function CreateSpotForm() {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        // Clear error for this field if it exists
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
+    };
+
     const validateForm = () => {
         const newErrors = {};
         
@@ -36,6 +64,20 @@ function CreateSpotForm() {
         if (!formData.address) newErrors.address = "Street address is required";
         if (!formData.city) newErrors.city = "City is required";
         if (!formData.state) newErrors.state = "State is required";
+        
+        // Latitude validation
+        if (!formData.lat) {
+            newErrors.lat = "Latitude is required";
+        } else if (isNaN(formData.lat) || Number(formData.lat) < -90 || Number(formData.lat) > 90) {
+            newErrors.lat = "Latitude must be a number between -90 and 90";
+        }
+        
+        // Longitude validation
+        if (!formData.lng) {
+            newErrors.lng = "Longitude is required";
+        } else if (isNaN(formData.lng) || Number(formData.lng) < -180 || Number(formData.lng) > 180) {
+            newErrors.lng = "Longitude must be a number between -180 and 180";
+        }
         
         // Description validation
         if (!formData.description) {
@@ -55,46 +97,65 @@ function CreateSpotForm() {
         }
         
         // Preview image validation
-        if (!formData.previewImage) {
+        if (!imageFiles.previewImage) {
             newErrors.previewImage = "Preview image is required";
-        } else if (!isValidImageUrl(formData.previewImage)) {
-            newErrors.previewImage = "Preview image must end in .png, .jpg, or .jpeg";
         }
         
         // Optional image validations
         ['image1', 'image2', 'image3', 'image4'].forEach(img => {
-            if (formData[img] && !isValidImageUrl(formData[img])) {
-                newErrors[img] = "Image URL must end in .png, .jpg, or .jpeg";
+            if (imageFiles[img] && !imageFiles[img].type.startsWith('image/')) {
+                newErrors[img] = "File must be an image";
             }
         });
 
         return newErrors;
     };
 
-    const isValidImageUrl = (url) => {
-        if (!url) return true; // Empty URLs are handled by required field validation
-        return url.match(/\.(jpg|jpeg|png)$/i);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        // Clear error for this field if it exists
-        if (errors[name]) {
-            setErrors(prev => ({
+    const handleImageChange = (e, fieldName) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 3 * 1024 * 1024) { // 3MB limit
+                setErrors(prev => ({
+                    ...prev,
+                    [fieldName]: 'Image size must be less than 3MB'
+                }));
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                setErrors(prev => ({
+                    ...prev,
+                    [fieldName]: 'File must be an image'
+                }));
+                return;
+            }
+            setImageFiles(prev => ({
                 ...prev,
-                [name]: ''
+                [fieldName]: file
             }));
+            // Create preview URL
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews(prev => ({
+                    ...prev,
+                    [fieldName]: reader.result
+                }));
+            };
+            reader.readAsDataURL(file);
+            // Clear any existing error
+            if (errors[fieldName]) {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[fieldName];
+                    return newErrors;
+                });
+            }
         }
     };
 
-    const handleSubmit = async (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
         const newErrors = validateForm();
-        
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -102,44 +163,84 @@ function CreateSpotForm() {
 
         setIsSubmitting(true);
         setErrors({});
-        
+
         try {
             // Format data for API
-            const spotData = {
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                country: formData.country,
-                lat: formData.lat || null,
-                lng: formData.lng || null,
-                name: formData.name,
-                description: formData.description,
-                price: Number(formData.price),
-                images: [
-                    { url: formData.previewImage, preview: true },
-                    ...[formData.image1, formData.image2, formData.image3, formData.image4]
-                        .filter(url => url)
-                        .map(url => ({ url, preview: false }))
-                ]
-            };
+            const lat = parseFloat(formData.lat);
+            const lng = parseFloat(formData.lng);
+            const price = parseFloat(formData.price);
 
-            const result = await dispatch(createSpot(spotData));
+            if (isNaN(lat) || isNaN(lng) || isNaN(price)) {
+                throw new Error('Invalid numeric values');
+            }
+
+            // Create form data for the spot
+            const spotFormData = new FormData();
+            spotFormData.append('address', formData.address.trim());
+            spotFormData.append('city', formData.city.trim());
+            spotFormData.append('state', formData.state.trim());
+            spotFormData.append('country', formData.country.trim());
+            spotFormData.append('lat', lat);
+            spotFormData.append('lng', lng);
+            spotFormData.append('name', formData.name.trim());
+            spotFormData.append('description', formData.description.trim());
+            spotFormData.append('price', price);
+
+            // Add the preview image
+            if (imageFiles.previewImage) {
+                spotFormData.append('previewImage', imageFiles.previewImage);
+            }
+
+            // Add additional images
+            Object.entries(imageFiles)
+                .filter(([name, file]) => name !== 'previewImage' && file)
+                .forEach(([, file]) => {
+                    spotFormData.append('images', file);
+                });
+
+            console.log('Submitting spot data:', Object.fromEntries(spotFormData.entries()));
+
+            const response = await dispatch(createSpot(spotFormData));
             
-            if (result.error) {
-                throw new Error(result.error.message || 'Failed to create spot');
+            console.log('Create spot response:', response);
+            
+            // Check if the action was rejected
+            if (response.type === 'spots/createSpot/rejected') {
+                const errorMessage = typeof response.payload === 'string' 
+                    ? response.payload 
+                    : JSON.stringify(response.payload);
+                throw new Error(errorMessage);
             }
             
-            navigate(`/spots/${result.payload.id}`);
+            // Make sure we have a valid response
+            if (!response.payload || !response.payload.id) {
+                throw new Error('Invalid response from server');
+            }
+            
+            // Success! Navigate to the new spot
+            navigate(`/spots/${response.payload.id}`);
         } catch (error) {
             console.error('Error creating spot:', error);
+            let errorMessage;
+            
+            if (error.name === 'TypeError' && error.message.includes('network')) {
+                errorMessage = 'Network error. Please check your connection.';
+            } else if (typeof error.payload === 'string') {
+                errorMessage = error.payload;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else {
+                errorMessage = 'An unexpected error occurred. Please try again.';
+            }
+            
             setErrors({
-                submit: error.message || "An error occurred while creating the spot. Please try again."
+                submit: errorMessage
             });
             window.scrollTo(0, 0); // Scroll to top to show error
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }
 
     return (
         <div className="create-spot-container">
@@ -206,25 +307,31 @@ function CreateSpotForm() {
 
                     <div className="input-group lat-lng">
                         <label>
-                            Latitude (optional)
+                            Latitude
                             <input
-                                type="text"
+                                type="number"
                                 name="lat"
                                 value={formData.lat}
                                 onChange={handleInputChange}
-                                placeholder="Latitude"
+                                placeholder="Latitude (e.g., 37.7645358)"
+                                step="any"
+                                min="-90"
+                                max="90"
                             />
                             {errors.lat && <span className="error">{errors.lat}</span>}
                         </label>
 
                         <label>
-                            Longitude (optional)
+                            Longitude
                             <input
-                                type="text"
+                                type="number"
                                 name="lng"
                                 value={formData.lng}
                                 onChange={handleInputChange}
-                                placeholder="Longitude"
+                                placeholder="Longitude (e.g., -122.4730327)"
+                                step="any"
+                                min="-180"
+                                max="180"
                             />
                             {errors.lng && <span className="error">{errors.lng}</span>}
                         </label>
@@ -293,30 +400,50 @@ function CreateSpotForm() {
                     <p>Submit a link to at least one photo to publish your spot.</p>
                     
                     <div className="input-group photos">
-                        <input
-                            type="text"
-                            name="previewImage"
-                            value={formData.previewImage}
-                            onChange={handleInputChange}
-                            placeholder="Preview Image URL"
-                        />
-                        {errors.previewImage && <span className="error">{errors.previewImage}</span>}
-
-                        {[1, 2, 3, 4].map(num => (
-                            <div key={num}>
+                        {/* Preview Image */}
+                        <div className="image-input-container">
+                            <label className="file-input-label">
+                                Preview Image (required)
                                 <input
-                                    type="text"
-                                    name={`image${num}`}
-                                    value={formData[`image${num}`]}
-                                    onChange={handleInputChange}
-                                    placeholder="Image URL"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageChange(e, 'previewImage')}
+                                    className="file-input"
                                 />
+                            </label>
+                            {imagePreviews.previewImage && (
+                                <div className="image-preview">
+                                    <img src={imagePreviews.previewImage} alt="Preview" />
+                                </div>
+                            )}
+                            <p className="helper-text">
+                                Please select an image file (max size: 5MB)
+                            </p>
+                            {errors.previewImage && <span className="error">{errors.previewImage}</span>}
+                        </div>
+
+                        {/* Additional Images */}
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={num} className="image-input-container">
+                                <label className="file-input-label">
+                                    Additional Image {num} (optional)
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleImageChange(e, `image${num}`)}
+                                        className="file-input"
+                                    />
+                                </label>
+                                {imagePreviews[`image${num}`] && (
+                                    <div className="image-preview">
+                                        <img src={imagePreviews[`image${num}`]} alt={`Preview ${num}`} />
+                                    </div>
+                                )}
                                 {errors[`image${num}`] && <span className="error">{errors[`image${num}`]}</span>}
                             </div>
                         ))}
                     </div>
                 </section>
-
                 {errors.submit && <div className="error submit-error">{errors.submit}</div>}
                 
                 <button 
