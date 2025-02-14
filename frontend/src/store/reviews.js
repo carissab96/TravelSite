@@ -109,14 +109,9 @@ const reviewsSlice = createSlice({
                 state.spot.items.unshift(action.payload); // Add new review at the beginning
             })
             // Handle deleteReview
-            .addCase(deleteReview.pending, (state) => {
-                state.spot.loading = true;
-                state.spot.error = null;
-            })
             .addCase(deleteReview.fulfilled, (state, action) => {
-                state.spot.loading = false;
                 state.spot.items = state.spot.items.filter(review => review.id !== action.payload);
-            })
+            })  
             .addCase(deleteReview.rejected, (state, action) => {
                 state.spot.loading = false;
                 state.spot.error = action.error.message;
