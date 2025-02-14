@@ -12,10 +12,10 @@ function Reviews({ spotId }) {
     const reviewsLoading = useSelector(state => state.reviews.spot.loading);
     const reviewsError = useSelector(state => state.reviews.spot.error);
     const currentUser = useSelector(state => state.session.user);
-//    const spot = useSelector(state => state.spots.singleSpot);
+   const spot = useSelector(state => state.spots.singleSpot);
      
-    // const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
-    // const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
+    const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
+    const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
 
     useEffect(() => {
         if (spotId) {
