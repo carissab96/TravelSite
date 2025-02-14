@@ -26,7 +26,7 @@ router.use((req, res, next) => {
 router.use(requireAuth); // Ensure this is applied before the routes
 
 // Create a review for a Spot
-router.post('/:spotId/reviews', validateReview, async (req, res) => {
+router.post('/:spotId', validateReview, async (req, res) => {
   const { comment, stars } = req.body;
   const { spotId } = req.params;
   
@@ -115,6 +115,42 @@ router.get('/current', requireAuth, async (req, res) => {
       statusCode: 500
     });
   }
+});
+
+// Get all reviews for a spot
+router.get('/spot/:spotId', async (req, res) => {
+    const { spotId } = req.params;
+    
+    try {
+        // Check if spot exists
+        const spot = await Spot.findByPk(spotId);
+        if (!spot) {
+            return res.status(404).json({
+                message: "Spot couldn't be found",
+                statusCode: 404
+            });
+        }
+
+        // Get all reviews for the spot
+        const reviews = await Review.findAll({
+            where: { spotId },
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'firstName', 'lastName']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        return res.json({ reviews });
+    } catch (error) {
+        console.error('Error fetching spot reviews:', error);
+        return res.status(500).json({
+            message: "An error occurred while fetching reviews",
+            statusCode: 500
+        });
+    }
 });
 
 // Get all reviews for a specific spot

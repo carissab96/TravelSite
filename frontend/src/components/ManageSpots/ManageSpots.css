@@ -2,45 +2,68 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    font-family: Fantasy;
 }
 
-.manage-spots-container h1 {
-    color: #001f3f;
-    margin-bottom: 20px;
+.manage-spots-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.manage-spots-header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 28px;
 }
 
 .create-spot-button {
-    background-color: #2ecc40;
-    color: white;
     padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 16px;
     cursor: pointer;
-    font-family: Fantasy;
-    margin-bottom: 20px;
     transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .create-spot-button:hover {
-    background-color: #27ae60;
+    background-color: #45a049;
+}
+
+.no-spots-message {
+    text-align: center;
+    padding: 40px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.no-spots-message p {
+    margin: 10px 0;
+    color: #666;
+    font-size: 18px;
 }
 
 .spots-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    margin-top: 20px;
 }
 
 .spot-card {
-    border: 1px solid #ddd;
+    background: white;
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s;
 }
 
 .spot-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
 }
 
 .spot-image {
@@ -54,63 +77,80 @@
 }
 
 .spot-info h3 {
-    color: #001f3f;
     margin: 0 0 10px 0;
+    color: #333;
+    font-size: 18px;
 }
 
-.price {
+.spot-location {
+    color: #666;
+    margin: 5px 0;
+}
+
+.spot-price {
     font-weight: bold;
-    color: #001f3f;
-}
-
-.price span {
-    font-size: 1.2em;
+    color: #333;
+    margin: 5px 0;
 }
 
 .spot-rating {
-    color: #001f3f;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    color: #f1c40f;
+    margin: 5px 0;
 }
 
 .spot-actions {
     display: flex;
     gap: 10px;
     padding: 15px;
+    border-top: 1px solid #eee;
 }
 
-.update-button, .delete-button {
+.spot-actions button {
     flex: 1;
     padding: 8px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    font-size: 14px;
     cursor: pointer;
-    font-family: Fantasy;
+    background-color: navy;
     transition: background-color 0.2s;
 }
 
 .update-button {
-    background-color: #2ecc40;
+    background-color: navy;
     color: white;
 }
 
 .update-button:hover {
-    background-color: #27ae60;
+    background-color: #1a6109;
 }
 
 .delete-button {
-    background-color: #001f3f;
+    background-color: #065510;
     color: white;
 }
 
 .delete-button:hover {
-    background-color: #00346b;
+    background-color: #1a6109;
 }
 
-.manage-spots-loading {
+/* Loading and Error States */
+.manage-spots-container.error {
+    color: #e74c3c;
     text-align: center;
-    padding: 50px;
-    font-family: Fantasy;
-    color: #001f3f;
+    padding: 40px;
+    font-size: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .manage-spots-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .spots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
 }

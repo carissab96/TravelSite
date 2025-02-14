@@ -29,6 +29,25 @@ app.use(
   })
 );
 
+// Add AWS test route before CSRF middleware
+app.get('/api/spots/test-aws', async (req, res) => {
+    const { s3 } = require('./config/aws');
+    try {
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME
+        };
+        
+        await s3.headBucket(params).promise();
+        res.json({ message: 'AWS S3 connection successful!' });
+    } catch (error) {
+        console.error('AWS Error:', error);
+        res.status(500).json({ 
+            message: 'AWS S3 connection failed',
+            error: error.message
+        });
+    }
+});
+
 // Set the _csrf token and create req.csrfToken method
 app.use(
   csurf({

@@ -609,69 +609,46 @@ router.get('/current', requireAuth, async (req, res) => {
   }   
 });
 
-const { upload } = require('../../config/aws');
-
 // Add an image to a spot
-router.post('/:id/images', requireAuth, upload.single('image'), async (req, res) => {
+router.post('/:id/images', requireAuth, async (req, res) => {
     const { id } = req.params;
-    const preview = req.body.preview === 'true';
-
-    if (!req.file) {
-        return res.status(400).json({ message: 'No image file provided' });
-    }
+    const { url, preview } = req.body;
 
     try {
-        // Find the spot by ID
+        // Check if spot exists and user owns it
         const spot = await Spot.findByPk(id);
-
-        // Check if the spot exists
         if (!spot) {
-            return res.status(404).json({ message: "Spot couldn't be found" });
-        }
-
-        // Check if the current user is the owner of the spot
-        if (spot.ownerId !== req.user.id) {
-            return res.status(403).json({ message: 'Forbidden: You do not have permission to add an image to this spot' });
-        }
-
-        // Check maximum images
-        const imageCount = await SpotImage.count({
-            where: { spotId: spot.id }
-        });
-
-        if (imageCount >= 10) {
-            return res.status(403).json({
-                message: "Maximum number of images for this spot was reached",
-                statusCode: 403
+            return res.status(404).json({
+                message: "Spot couldn't be found"
             });
         }
 
-        // Create the new image in the database
+        // Verify ownership
+        if (spot.ownerId !== req.user.id) {
+            return res.status(403).json({
+                message: "Forbidden: You don't have permission to add images to this spot"
+            });
+        }
+
+        // Create the image
         const newImage = await SpotImage.create({
-            spotId: spot.id,
-            url: req.file.location, // S3 URL of the uploaded file
-            preview,
+            spotId: parseInt(id),
+            url,
+            preview: Boolean(preview)
         });
 
-        // Return the newly created image
-        return res.status(201).json({
+        // Return the new image data
+        return res.json({
             id: newImage.id,
             url: newImage.url,
-            preview: newImage.preview,
+            preview: newImage.preview
         });
     } catch (error) {
-        console.error('Error adding image to spot:', error);
-        if (error.name === 'SequelizeValidationError') {
-          const errors = error.errors.map(err => ({
-            field: err.path,
-            message: err.message
-          }));
-          return res.status(400).json({
-            message: 'Validation error',
-            errors
-          });
-        }
-        return res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error adding image:', error);
+        return res.status(500).json({
+            message: "Error adding image to spot",
+            errors: { server: error.message }
+        });
     }
 });
 

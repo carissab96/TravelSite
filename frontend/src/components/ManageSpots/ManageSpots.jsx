@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchUserSpots, deleteSpot } from '../../store/spots';
+import OpenModalButton from '../OpenModalButton/OpenModalButton';
+import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';
 import './ManageSpots.css';
 
 const ManageSpots = () => {
@@ -72,12 +74,14 @@ const ManageSpots = () => {
                             >
                                 Update
                             </button>
-                            <button 
-                                onClick={() => handleDelete(spot.id)}
-                                className="delete-button"
-                            >
-                                Delete
-                            </button>
+                            <OpenModalButton
+                                buttonText="Delete"
+                                modalComponent={
+                                <DeleteSpotModal spotId={spot.id}
+                                 onSuccess={() => dispatch(fetchUserSpots())}
+                                 onError={() => console.error('Failed to delete spot')}
+                                 />}
+                            />
                         </div>
                     </div>
                 ))}

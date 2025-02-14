@@ -39,98 +39,67 @@ export const fetchSpotDetails = createAsyncThunk(
 
 export const createSpot = createAsyncThunk(
     'spots/createSpot',
-    async (spotFormData, { rejectWithValue }) => {
+    async (spotData, { rejectWithValue }) => {
         try {
-            console.log('Starting spot creation...');
-            // First, create the spot
+            // Extract images array from spotData
+            const { images, ...spotDetails } = spotData;
+
+            // Create the spot
             const spotResponse = await fetchWithCsrf('/api/spots', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    address: spotFormData.get('address'),
-                    city: spotFormData.get('city'),
-                    state: spotFormData.get('state'),
-                    country: spotFormData.get('country'),
-                    lat: Number(spotFormData.get('lat')),
-                    lng: Number(spotFormData.get('lng')),
-                    name: spotFormData.get('name'),
-                    description: spotFormData.get('description'),
-                    price: Number(spotFormData.get('price'))
-                })
+                body: JSON.stringify(spotDetails)
             });
 
+            let responseData;
+            try {
+                responseData = await spotResponse.json();
+            } catch (parseError) {
+                return rejectWithValue('Failed to parse server response');
+            }
+
             if (!spotResponse.ok) {
-                try {
-                    const error = await spotResponse.json();
-                    return rejectWithValue(error.message || 'Failed to create spot');
-                } catch (jsonError) {
-                    console.error('Error parsing response:', jsonError);
-                    const textError = await spotResponse.text();
-                    console.error('Raw response:', textError);
-                    return rejectWithValue('Server error: ' + textError);
-                }
-            }
-
-            const spotResponseData = await spotResponse.json();
-            const createdSpot = spotResponseData.spot || spotResponseData;
-
-            if (!createdSpot || !createdSpot.id) {
-                throw new Error('Invalid response from server');
-            }
-
-            // Upload preview image
-            const previewImage = spotFormData.get('previewImage');
-            if (previewImage) {
-                const previewFormData = new FormData();
-                previewFormData.append('image', previewImage);
-                previewFormData.append('preview', 'true');
-
-                const previewResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}/images`, {
-                    method: 'POST',
-                    body: previewFormData
+                return rejectWithValue({
+                    message: responseData.message || 'Failed to create spot',
+                    errors: responseData.errors || {}
                 });
-
-                if (!previewResponse.ok) {
-                    // If preview image upload fails, delete the spot
-                    await fetchWithCsrf(`/api/spots/${createdSpot.id}`, { method: 'DELETE' });
-                    const error = await previewResponse.json();
-                    return rejectWithValue(error.message || 'Failed to upload preview image');
-                }
             }
 
-            // Upload additional images
-            const additionalImages = spotFormData.getAll('images');
-            for (const image of additionalImages) {
-                const imageFormData = new FormData();
-                imageFormData.append('image', image);
-                imageFormData.append('preview', 'false');
+            const createdSpot = responseData.spot || responseData;
+            if (!createdSpot || !createdSpot.id) {
+                return rejectWithValue('Invalid response from server');
+            }
 
+            // Add images
+            for (const image of images) {
                 const imageResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}/images`, {
                     method: 'POST',
-                    body: imageFormData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(image)
                 });
 
                 if (!imageResponse.ok) {
-                    // Log error but continue with other images
-                    console.error('Failed to upload additional image:', await imageResponse.json());
+                    // If image upload fails, delete the spot
+                    await fetchWithCsrf(`/api/spots/${createdSpot.id}`, {
+                        method: 'DELETE'
+                    });
+                    return rejectWithValue('Failed to add images to spot');
                 }
             }
 
-            // Get the final spot with all images
-            const finalResponse = await fetchWithCsrf(`/api/spots/${createdSpot.id}`);
-            if (!finalResponse.ok) {
-                throw new Error('Failed to fetch updated spot details');
-            }
-
-            return await finalResponse.json();
+            // Return the created spot with its ID
+            return { spot: createdSpot };
         } catch (error) {
             console.error('Error in createSpot:', error);
             return rejectWithValue(error.message || 'An unexpected error occurred');
         }
     }
 );
+
 export const fetchUserSpots = createAsyncThunk(
     'spots/fetchUserSpots',
     async () => {
@@ -237,8 +206,8 @@ const spotsSlice = createSlice({
             })
             .addCase(createSpot.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.allSpots[action.payload.id] = action.payload;
-                state.singleSpot = action.payload;
+                state.allSpots[action.payload.spot.id] = action.payload.spot;
+                state.singleSpot = action.payload.spot;
             })
             .addCase(createSpot.rejected, (state, action) => {
                 state.isLoading = false;
