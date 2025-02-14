@@ -48,7 +48,7 @@ const restoreUser = (req, res, next) => {
         attributes: {
           include: ['email', 'createdAt', 'updatedAt']  
         }
-      });n
+      });
     } catch (e) {
       res.clearCookie('token');
       return next();

@@ -155,7 +155,7 @@ router.get('/spot/:spotId', async (req, res) => {
 });
 
 // Get all reviews for a specific spot
-router.get('/:spotId/reviews', async (req, res) => {
+router.get('/reviews/:spotId/reviews', async (req, res) => {
     const { spotId } = req.params;
 
    
