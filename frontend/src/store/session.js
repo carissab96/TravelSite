@@ -1,4 +1,4 @@
-import { fetchWithCsrf, restoreCSRF } from './csrf';
+import fetchWithCsrf from './csrf';
 
 // Action Types
 const SET_USER = 'session/SET_USER';
@@ -79,7 +79,7 @@ export const login = (credentials) => async (dispatch) => {
         };
     }
 };
-
+//restore user session
 export const restoreUser = () => async (dispatch) => {
     try {
         const response = await fetchWithCsrf('/api/session');

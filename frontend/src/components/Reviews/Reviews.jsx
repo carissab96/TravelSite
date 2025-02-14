@@ -10,10 +10,10 @@ function Reviews({ spotId }) {
     const dispatch = useDispatch();
     const reviews = useSelector(state => state.reviews.spot.items);
     const currentUser = useSelector(state => state.session.user);
-    const spot = useSelector(state => state.spots.singleSpot);
-    
-    const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
-    const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
+//    const spot = useSelector(state => state.spots.singleSpot);
+     
+    // const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
+    // const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
 
     useEffect(() => {
         if (spotId) {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserSpots, deleteSpot } from '../../store/spots';
+import { fetchUserSpots } from '../../store/spots';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
 import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';
 import './ManageSpots.css';
@@ -24,18 +24,18 @@ const ManageSpots = () => {
         navigate(`/spots/${spotId}/edit`);
     };
 
-    const handleDelete = async (spotId) => {
-        if (window.confirm('Are you sure you want to delete this spot?')) {
-            try {
-                 await dispatch(deleteSpot(spotId));
-                // Refresh the spots list
-                await dispatch(fetchUserSpots());
-            } catch (error) {
-                console.error('Failed to delete spot:', error);
-                window.alert('Failed to delete spot: ' + error.message);
-            }
-        }
-    }
+    // const handleDelete = async (spotId) => {
+    //     if (window.confirm('Are you sure you want to delete this spot?')) {
+    //         try {
+    //              await dispatch(deleteSpot(spotId));
+    //             // Refresh the spots list
+    //             await dispatch(fetchUserSpots());
+    //         } catch (error) {
+    //             console.error('Failed to delete spot:', error);
+    //             window.alert('Failed to delete spot: ' + error.message);
+    //         }
+    //     }
+    // }
 
     async function handleCreateNew() {
         navigate('/spots/new');
