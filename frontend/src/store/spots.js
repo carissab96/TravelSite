@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
-import { fetchWithCsrf } from './csrf';
+import fetchWithCsrf from './csrf';
 
 // Thunk Actions
 export const fetchSpots = createAsyncThunk(

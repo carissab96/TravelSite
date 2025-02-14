@@ -26,10 +26,11 @@ router.use((req, res, next) => {
 router.use(requireAuth); // Ensure this is applied before the routes
 
 // Create a review for a Spot
-router.post('/:spotId', validateReview, async (req, res) => {
+router.post('/:spotId/reviews', validateReview, async (req, res) => {
   const { comment, stars } = req.body;
   const { spotId } = req.params;
-  
+  const userId = req.user.id; // Assuming you have middleware to attach the user to the request
+
   try {
     // Check if spot exists
     const spot = await Spot.findByPk(spotId);
@@ -44,7 +45,7 @@ router.post('/:spotId', validateReview, async (req, res) => {
     const existingReview = await Review.findOne({
       where: {
         spotId,
-        userId: req.user.id
+        userId
       }
     });
 
