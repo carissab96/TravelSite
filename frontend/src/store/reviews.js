@@ -67,6 +67,19 @@ export const deleteReview = createAsyncThunk(
     }
 );
 
+// Thunk action to fetch spot details
+export const fetchSpotDetails = createAsyncThunk(
+    'spots/fetchSpotDetails',
+    async (spotId) => {
+        const response = await fetchWithCsrf(`/api/spots/${spotId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch spot details');
+        }
+        const data = await response.json();
+        return data;
+    }
+);
+
 const reviewsSlice = createSlice({
     name: 'reviews',
     initialState: {
@@ -109,14 +122,9 @@ const reviewsSlice = createSlice({
                 state.spot.items.unshift(action.payload); // Add new review at the beginning
             })
             // Handle deleteReview
-            .addCase(deleteReview.pending, (state) => {
-                state.spot.loading = true;
-                state.spot.error = null;
-            })
             .addCase(deleteReview.fulfilled, (state, action) => {
-                state.spot.loading = false;
                 state.spot.items = state.spot.items.filter(review => review.id !== action.payload);
-            })
+            })  
             .addCase(deleteReview.rejected, (state, action) => {
                 state.spot.loading = false;
                 state.spot.error = action.error.message;
@@ -130,5 +138,7 @@ export const { clearSpotReviews } = reviewsSlice.actions;
 export const selectSpotReviews = (state) => state.reviews.spot.items;
 export const selectSpotReviewsLoading = (state) => state.reviews.spot.loading;
 export const selectSpotReviewsError = (state) => state.reviews.spot.error;
+
+// export { fetchSpotReviews, };
 
 export default reviewsSlice.reducer;
