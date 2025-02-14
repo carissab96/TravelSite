@@ -160,7 +160,7 @@ function CreateSpotForm() {
             <form onSubmit={handleSubmit} className="create-spot-form">
                 {/* Location Info */}
                 <section className="form-section">
-                    <h2>Where's your place located?</h2>
+                    <h2>Where is your place located?</h2>
                     <p>Guests will only get your exact address once they book a reservation.</p>
                     
                     <div className="input-group">
@@ -258,7 +258,7 @@ function CreateSpotForm() {
                 {/* Title */}
                 <section className="form-section">
                     <h2>Create a title for your spot</h2>
-                    <p>Catch guests' attention with a spot title that highlights what makes your place special.</p>
+                    <p>Catch guests&apos; attention with a spot title that highlights what makes your place special.</p>
                     
                     <div className="input-group">
                         <input

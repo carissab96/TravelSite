@@ -12,7 +12,8 @@ function Reviews({ spotId }) {
     const reviewsLoading = useSelector(state => state.reviews.spot.loading);
     const reviewsError = useSelector(state => state.reviews.spot.error);
     const currentUser = useSelector(state => state.session.user);
-    
+    const spot = useSelector(state => state.spots.singleSpot);
+
     const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
     const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
 
@@ -39,6 +40,9 @@ function Reviews({ spotId }) {
         return (
             <div className="reviews-section">
                 <p className="no-reviews">Be the first to post a review!</p>
+                {currentUser && !isSpotOwner && !hasUserReviewed && (
+                    <button className="post-review-button">Post Your Review</button>
+                )}
             </div>
         );
     }

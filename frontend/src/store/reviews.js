@@ -67,6 +67,19 @@ export const deleteReview = createAsyncThunk(
     }
 );
 
+// Thunk action to fetch spot details
+export const fetchSpotDetails = createAsyncThunk(
+    'spots/fetchSpotDetails',
+    async (spotId) => {
+        const response = await fetchWithCsrf(`/api/spots/${spotId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch spot details');
+        }
+        const data = await response.json();
+        return data;
+    }
+);
+
 const reviewsSlice = createSlice({
     name: 'reviews',
     initialState: {
@@ -125,5 +138,7 @@ export const { clearSpotReviews } = reviewsSlice.actions;
 export const selectSpotReviews = (state) => state.reviews.spot.items;
 export const selectSpotReviewsLoading = (state) => state.reviews.spot.loading;
 export const selectSpotReviewsError = (state) => state.reviews.spot.error;
+
+// export { fetchSpotReviews, };
 
 export default reviewsSlice.reducer;

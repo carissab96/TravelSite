@@ -1,4 +1,4 @@
-import { fetchWithCsrf, restoreCSRF } from './csrf';
+import { fetchWithCsrf } from './csrf';
 
 // Action Types
 const SET_USER = 'session/SET_USER';
