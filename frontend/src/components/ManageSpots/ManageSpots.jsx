@@ -66,7 +66,6 @@ const ManageSpots = () => {
                                 <i className="fas fa-star"></i>
                                 <span className="stars">{spot.avgRating === 'New' ? 'New' : Number(spot.avgRating).toFixed(1)}</span>
                             </div>
-                            {/* <p>Hosted by {spot.owner?.firstName || ''} {spot.owner?.lastName}</p>  */}
                         </div>
                         <div className="spot-actions">
                             <button 
