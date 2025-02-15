@@ -91,7 +91,7 @@ function SpotDetails() {
 
             <div className="spot-content">
                 <div className="spot-info">
-                    <h2>Hosted by {spot.owner?.firstName || ''} {spot.owner?.lastName}</h2>
+                    <h2>Hosted by {spot.owner?.firstName} {spot.owner?.lastName}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
                 <div className="callout-box">
@@ -116,7 +116,7 @@ function SpotDetails() {
             <section className="reviews-section">
                 <div className="reviews-header">
                     <h2>
-                        ★ {spot.avgStarRating ? spot.avgStarRating.toFixed(1) : 'New'} · 
+                        <span className="stars">★ {spot.avgRating === 'New' ? 'New' : Number(spot.avgRating).toFixed(1)}</span>
                         {spot.numReviews || 0} {(spot.numReviews === 1) ? 'Review' : 'Reviews'}
                     </h2>
                     {user && !isOwner && !hasReviewed && (
