@@ -91,7 +91,7 @@ function SpotDetails() {
 
             <div className="spot-content">
                 <div className="spot-info">
-                    <h2>Hosted by {spot.owner?.firstName}  /</h2>
+                    <h2>Hosted by {spot.owner?.firstName} {spot.owner?.lastName}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
                 <div className="callout-box">

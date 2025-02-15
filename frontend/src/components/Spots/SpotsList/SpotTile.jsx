@@ -7,6 +7,7 @@ function SpotTile({ spot }) {
 
     const handleClick = () => {
         navigate(`/spots/${spot.id}`);
+
     };
 
     const renderRating = () => {

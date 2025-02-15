@@ -5,6 +5,7 @@ import { fetchUserSpots } from '../../store/spots';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
 import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';
 import './ManageSpots.css';
+import SpotTile from '../Spots/SpotsList/SpotTile';
 
 const ManageSpots = () => {
     const dispatch = useDispatch();
@@ -23,25 +24,12 @@ const ManageSpots = () => {
     const handleUpdate = (spotId) => {
         navigate(`/spots/${spotId}/edit`);
     };
-
-    // const handleDelete = async (spotId) => {
-    //     if (window.confirm('Are you sure you want to delete this spot?')) {
-    //         try {
-    //              await dispatch(deleteSpot(spotId));
-    //             // Refresh the spots list
-    //             await dispatch(fetchUserSpots());
-    //         } catch (error) {
-    //             console.error('Failed to delete spot:', error);
-    //             window.alert('Failed to delete spot: ' + error.message);
-    //         }
-    //     }
-    // }
-
     async function handleCreateNew() {
         navigate('/spots/new');
     }
 
-    if (!spots) return <div className="manage-spots-loading">Loading...</div>;
+    if (!spots) return 
+    <div className="manage-spots-loading">Loading...</div>;
 
     return (
         <div className="manage-spots-container">
@@ -49,7 +37,11 @@ const ManageSpots = () => {
             <button className="create-spot-button" onClick={handleCreateNew}>
                 Create a New Spot
             </button>
-            
+            <div className="spots-tile">
+                {Object.values(spots).map(spot => (
+                    <SpotTile key={spot.id} spot={spot} handleUpdate={handleUpdate} />
+                ))}
+            </div>
             <div className="spots-grid">
                 {Object.values(spots).map(spot => (
                     <div key={spot.id} className="spot-card">
