@@ -21,7 +21,12 @@ const UpdateSpot = () => {
         lng: '',
         name: '',
         description: '',
-        price: ''
+        price: '',
+        previewImage: '',
+        image1: '',
+        image2: '',
+        image3: '',
+        image4: ''
     });
 
     useEffect(() => {
@@ -48,7 +53,12 @@ const UpdateSpot = () => {
                 lng: spot.lng || '',
                 name: spot.name || '',
                 description: spot.description || '',
-                price: spot.price || ''
+                price: spot.price || '',
+                previewImage: spot.images?.[0]?.url || '',
+                image1: spot.images?.[1]?.url || '',
+                image2: spot.images?.[2]?.url || '',
+                image3: spot.images?.[3]?.url || '',
+                image4: spot.images?.[4]?.url || ''
             });
         }
     }, [spot]);
@@ -72,6 +82,7 @@ const UpdateSpot = () => {
         if (!formData.price || formData.price <= 0) {
             newErrors.price = 'Price must be greater than 0';
         }
+        if (!formData.previewImage) newErrors.previewImage = 'Preview image is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -236,7 +247,38 @@ const UpdateSpot = () => {
                         {errors.price && <span className="error">{errors.price}</span>}
                     </div>
                 </section>
+                <section className="form-section">
+                    <h2>Liven up your spot with photos</h2>
+                    <p>Submit a link to at least one photo to publish your spot.</p>
+                    
+                    <div className="input-group">
+                        <label>Preview Image URL (required)</label>
+                        <input
+                            type="text"
+                            name="previewImage"
+                            value={formData.previewImage}
+                            onChange={handleChange}
+                            placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+                            className="url-input"
+                        />
+                        {errors.previewImage && <span className="error">{errors.previewImage}</span>}
+                    </div>
 
+                    {[1, 2, 3, 4].map(num => (
+                        <div key={num} className="input-group">
+                            <label>Image URL {num} (optional)</label>
+                            <input
+                                type="text"
+                                name={`image${num}`}
+                                value={formData[`image${num}`]}
+                                onChange={handleChange}
+                                placeholder="Enter image URL (optional)"
+                                className="url-input"
+                            />
+                            {errors[`image${num}`] && <span className="error">{errors[`image${num}`]}</span>}
+                        </div>
+                    ))}
+                </section>
                 <button type="submit" className="submit-button">
                     Update Spot
                 </button>
