@@ -9,7 +9,7 @@ import CreateSpotForm from './components/CreateSpotForm/CreateSpotForm';
 import ManageSpots from './components/ManageSpots/ManageSpots';
 import UpdateSpot from './components/UpdateSpot/UpdateSpot';
 import About from './components/About/About';
-
+import Footer from './components/Footer/Footer';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -59,8 +59,11 @@ const router = createBrowserRouter([
       {
         path: '/spots/current',
         element: <ManageSpots />
-      }
-     
+      },
+     {
+        path: '/Footer',
+        element: <Footer />
+     }
     ]
   }
 ]);
