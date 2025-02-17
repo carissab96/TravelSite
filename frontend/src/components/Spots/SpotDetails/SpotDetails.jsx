@@ -12,6 +12,8 @@ function SpotDetails() {
     const dispatch = useDispatch();
     const [showReviewModal, setShowReviewModal] = useState(false);
     
+    console.log('SpotDetails component render - spotId:', spotId);
+
     const spot = useSelector(state => state.spots.singleSpot);
     const reviews = useSelector(state => state.reviews.spot.items);
     const isLoading = useSelector(state => state.spots.isLoading);
@@ -24,10 +26,22 @@ function SpotDetails() {
     // Check if current user has already reviewed
     const hasReviewed = user && reviews.some(review => review.userId === user.id);
 
+        const handlePostReview = () => {
+            console.log('handlePostReview');
+            if (!isOwner && !hasReviewed) {
+                //Proceed to open the ReviewModal
+                setShowReviewModal(true);
+            } else {
+                //show a message that the user already has a review
+                window.alert('You already have a review for this spot');
+            }
+        };
+
     useEffect(() => {
         if (!spotId) return;
+        console.log('Dispatching fetchSpotDetails...', spotId);
         dispatch(fetchSpotDetails(parseInt(spotId, 10)));
-        dispatch(fetchSpotReviews(parseInt(spotId, 10)));
+        // dispatch(fetchSpotReviews(parseInt(spotId, 10)));
     }, [dispatch, spotId]);
 
     console.log('Component render - spot:', spot, 'isLoading:', isLoading, 'error:', error);
@@ -46,7 +60,9 @@ function SpotDetails() {
 
     const handleReviewSuccess = () => {
         // Refresh reviews after a new review is posted
+        console.log('Dispatching fetchSpotReviews...');
         dispatch(fetchSpotReviews(parseInt(spotId, 10)));
+        console.log('Dispatching fetchSpotDetails...');
         dispatch(fetchSpotDetails(parseInt(spotId, 10))); // To update avg rating
     };
 
@@ -91,7 +107,7 @@ function SpotDetails() {
 
             <div className="spot-content">
                 <div className="spot-info">
-                    <h2>Hosted by {spot.owner?.firstName} {spot.owner?.lastName}</h2>
+                    <h2>Hosted by {spot.owner?.firstName || 'Unknown'} {spot.owner?.lastName || ''}</h2>
                     <p className="description">{spot.description}</p>
                 </div>
                 <div className="callout-box">
@@ -116,17 +132,21 @@ function SpotDetails() {
             <section className="reviews-section">
                 <div className="reviews-header">
                     <h2>
-                        <span className="stars">★ {spot.avgRating === 'New' ? 'New' : Number(spot.avgRating).toFixed(1)}</span>
+                        ★ {spot.avgStarRating ? spot.avgStarRating.toFixed(1) : 'New'} · 
                         {spot.numReviews || 0} {(spot.numReviews === 1) ? 'Review' : 'Reviews'}
                     </h2>
-                    {user && !isOwner && !hasReviewed && (
                         <button 
-                            onClick={() => setShowReviewModal(true)}
-                            className="post-review-button"
-                        >
+                            onClick={handlePostReview}
+                            className="post-review-button">
                             Post Your Review
                         </button>
-                    )}
+                        {showReviewModal && (
+                            <ReviewModal
+                                spotId={spotId}
+                                onClose={() => setShowReviewModal(false)}
+                                onSuccess={handleReviewSuccess}
+                            />
+                        )}  
                 </div>
                 
                 {/* Review Modal */}

@@ -47,7 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Error handler
-router.use((err, req, res, next) => {
+router.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal Server Error' });
 });

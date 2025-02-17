@@ -15,6 +15,10 @@ const ReviewModal = ({ spotId, onClose, onSuccess }) => {
         if (!review.trim() || stars === 0) return;
 
         try {
+            console.log('Attempting to create a review');
+            console.log('Review data:', {
+                spotId, review: { comment: review, stars }
+            })
             await dispatch(createReview({
                 spotId,
                 review: {
@@ -22,9 +26,11 @@ const ReviewModal = ({ spotId, onClose, onSuccess }) => {
                     stars
                 }
             })).unwrap();
+            console.log('Review created successfully');
             onSuccess();
             onClose();
         } catch (err) {
+            console.error('Failed to create a review', err);
             setError(err.message);
         }
     };

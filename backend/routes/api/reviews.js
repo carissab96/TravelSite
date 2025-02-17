@@ -1,5 +1,4 @@
 const express = require('express');
-const { Op } = require('sequelize');
 const { check, validationResult } = require('express-validator');
 const { requireAuth } = require('../../utils/auth');
 const { Review, Spot, User, ReviewImage } = require('../../db/models');
@@ -18,7 +17,7 @@ const validateReview = [
 
 // Middleware for logging incoming requests
 router.use((req, res, next) => {
- 
+    console.log(`[API] ${req.method} ${req.url}`);
     next();
 });
 
@@ -26,10 +25,10 @@ router.use((req, res, next) => {
 router.use(requireAuth); // Ensure this is applied before the routes
 
 // Create a review for a Spot
-router.post('/:spotId/reviews', validateReview, async (req, res) => {
+router.post('/reviews/:spotId/reviews', validateReview, async (req, res) => {
   const { comment, stars } = req.body;
   const { spotId } = req.params;
-  const userId = req.user.id; // Assuming you have middleware to attach the user to the request
+  const userId = req.user.id; 
 
   try {
     // Check if spot exists
@@ -119,7 +118,7 @@ router.get('/current', requireAuth, async (req, res) => {
 });
 
 // Get all reviews for a spot
-router.get('/spot/:spotId', async (req, res) => {
+router.get('/reviews/:spotId/reviews', async (req, res) => {
     const { spotId } = req.params;
     
     try {
@@ -144,39 +143,35 @@ router.get('/spot/:spotId', async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        return res.json({ reviews });
-    } catch (error) {
-        console.error('Error fetching spot reviews:', error);
-        return res.status(500).json({
-            message: "An error occurred while fetching reviews",
-            statusCode: 500
-        });
-    }
+        return res.status(200).json({
+          message: 'Reviews fetched successfully',
+          reviews: reviews || []
+      });
+  } catch (error) {
+      console.error('Error retrieving reviews for spot:', error);
+      return res.status(500).json({ message: 'Error retrieving reviews for spot', error });
+  }
 });
 
 // Get all reviews for a specific spot
 router.get('/reviews/:spotId/reviews', async (req, res) => {
-    const { spotId } = req.params;
+  const { spotId } = req.params;
 
-   
+  try {
+      const reviews = await Review.findAll({
+          where: { spotId },
+          include: [{ model: User, attributes: ['id', 'firstName', 'lastName'] }] // Include associated user information if needed
+      });
 
-    try {
-        const reviews = await Review.findAll({
-            where: { spotId },
-            include: [{ model: User,
-                attributes: ['id', 'firstName', 'lastName']
-             }] // Include associated user information if needed
-        });
-
-        if (reviews.length === 0) {
-            return res.status(404).json({ message: 'No reviews found for this spot' });
-        }
-
-        return res.status(200).json({ reviews });
-    } catch (error) {
-        console.error('Error retrieving reviews for spot:', error);
-        return res.status(500).json({ message: 'Error retrieving reviews for spot', error });
-    }
+      // Return a 200 status with an empty array if no reviews found
+      return res.status(200).json({ 
+          message: 'Reviews fetched successfully', 
+          reviews: reviews || [] 
+      });
+  } catch (error) {
+      console.error('Error retrieving reviews for spot:', error);
+      return res.status(500).json({ message: 'Error retrieving reviews for spot', error });
+  }
 });
 
 // Add an Image to a Review

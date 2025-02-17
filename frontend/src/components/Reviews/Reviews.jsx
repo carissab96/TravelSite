@@ -9,13 +9,7 @@ import './Reviews.css';
 function Reviews({ spotId }) {
     const dispatch = useDispatch();
     const reviews = useSelector(state => state.reviews.spot.items);
-    const reviewsLoading = useSelector(state => state.reviews.spot.loading);
-    const reviewsError = useSelector(state => state.reviews.spot.error);
     const currentUser = useSelector(state => state.session.user);
-   const spot = useSelector(state => state.spots.singleSpot);
-     
-    const isSpotOwner = currentUser && spot && currentUser.id === spot.ownerId;
-    const hasUserReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
 
     useEffect(() => {
         if (spotId) {
@@ -28,11 +22,15 @@ function Reviews({ spotId }) {
         return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     };
 
+    // Handle loading state
+    const reviewsLoading = useSelector(state => state.reviews.spot.loading);
+    const reviewsError = useSelector(state => state.reviews.spot.error);
+
     if (reviewsLoading) {
         return <div className="reviews-section">Loading reviews...</div>;
     }
 
-    if (reviewsError && !(reviewsError).includes("couldn't be found")) {
+    if (reviewsError && !reviewsError.includes("couldn't be found")) {
         return <div className="reviews-section">Error loading reviews: {reviewsError}</div>;
     }
 
@@ -40,9 +38,6 @@ function Reviews({ spotId }) {
         return (
             <div className="reviews-section">
                 <p className="no-reviews">Be the first to post a review!</p>
-                {currentUser && !isSpotOwner && !hasUserReviewed && (
-                    <button className="post-review-button">Post Your Review</button>
-                )}
             </div>
         );
     }
@@ -51,10 +46,10 @@ function Reviews({ spotId }) {
         <div className="reviews-section">
             <h2>Reviews</h2>
             <div className="reviews-list">
-                {Array.isArray(reviews) && reviews.map(review => (
+                {reviews.map(review => (
                     <div key={review.id} className="review-item">
                         <div className="reviewer-info">
-                            <h3>{review.User?.firstName || 'Anonymous'}</h3>
+                            <h3>{review.User?.firstName}</h3>
                             <span className="review-date">{formatDate(review.createdAt)}</span>
                         </div>
                         <div className="review-rating">

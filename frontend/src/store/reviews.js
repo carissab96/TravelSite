@@ -32,14 +32,17 @@ export const createReview = createAsyncThunk(
         try {
             const response = await fetchWithCsrf(`/api/reviews/reviews/${spotId}/reviews`, {
                 method: 'POST',
-                body: JSON.stringify(review)
+                body: JSON.stringify(review),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Failed to create review');
             }
             const data = await response.json();
-            return data;
+            return data; // Adjust based on what your backend returns
         } catch (error) {
             console.error('Error creating review:', error);
             throw error;

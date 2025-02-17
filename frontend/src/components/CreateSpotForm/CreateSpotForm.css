@@ -112,7 +112,7 @@
 
 .image-preview {
     width: 100%;
-    max-width: 300px;
+    max-width: 250px;
     margin-top: 0.5rem;
     border-radius: 4px;
     overflow: hidden;
@@ -136,22 +136,6 @@
     width: 100%;
     margin-bottom: 0.5rem;
 }
-
-.generate-image-btn {
-    background-color: #00635D;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-}
-
-.generate-image-btn:hover {
-    background-color: #004d47;
-}
-
 .helper-text {
     color: #717171;
     font-size: 0.85rem;
