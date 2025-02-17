@@ -27,6 +27,7 @@ function Layout() {
       <main className="main-content">
         {isLoaded && <Outlet />}
       </main>
+      <Footer />
     </>
   );
 }
@@ -59,11 +60,8 @@ const router = createBrowserRouter([
       {
         path: '/spots/current',
         element: <ManageSpots />
-      },
-     {
-        path: '/Footer',
-        element: <Footer />
-     }
+      }
+    
     ]
   }
 ]);
